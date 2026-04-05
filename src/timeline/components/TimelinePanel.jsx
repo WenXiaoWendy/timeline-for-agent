@@ -30,7 +30,6 @@ function TimelinePanel({ timeline }) {
   return (
     <div className="timeline-wrap">
       <div ref={containerRef} className="timeline-canvas" />
-      <div className="timeline-corner" aria-hidden="true" />
       <TimelineTooltipPortal tooltipRef={tooltipRef} />
     </div>
   );
@@ -81,7 +80,6 @@ function useVisTimeline({
       ? new Timeline(element, items, groups, baseOptions)
       : new Timeline(element, items, baseOptions);
 
-    syncTimelineCornerGuides(element);
     resetZoom();
 
     const handleMove = (properties) => {
@@ -186,9 +184,6 @@ function useTimelineZoom({
         timeAxis: TIMELINE_ZOOM_LEVELS[nextIndex].timeAxis,
       });
       timelineRef.current?.setWindow(nextStart, nextEnd, { animation: false });
-      requestAnimationFrame(() => {
-        syncTimelineCornerGuides(containerRef.current);
-      });
     };
 
     wheelTarget.addEventListener("wheel", handleWheel, { passive: false });
@@ -226,18 +221,6 @@ function TimelineTooltipPortal({ tooltipRef }) {
   }
 
   return createPortal(<div ref={tooltipRef} className="timeline-tooltip hidden" />, tooltipHost);
-}
-
-function syncTimelineCornerGuides(element) {
-  if (!element) {
-    return;
-  }
-  const topPanel = element.querySelector(".vis-panel.vis-top");
-  const leftPanel = element.querySelector(".vis-panel.vis-left");
-  const headerHeight = Math.round(topPanel?.getBoundingClientRect().height || 24);
-  const labelWidth = Math.round(leftPanel?.getBoundingClientRect().width || 36);
-  element.style.setProperty("--timeline-header-height", `${headerHeight}px`);
-  element.style.setProperty("--timeline-label-width", `${labelWidth}px`);
 }
 
 function renderTimelineTooltip(element, tooltip, event) {
