@@ -21,7 +21,7 @@ import {
   formatMinutesTick,
   formatPercent,
   formatRangeSelection,
-} from "../data/dashboard-helpers.js";
+} from "../lib/dashboard-helpers.js";
 
 function HeaderStats({
   currentAggregate,

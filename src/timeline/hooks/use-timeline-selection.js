@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { buildMonthTimeline, buildScaledDepthColor } from "./dashboard-helpers.js";
+import { buildMonthTimeline, buildScaledDepthColor } from "../lib/dashboard-helpers.js";
 
 function useTimelineSelection({
   data,
