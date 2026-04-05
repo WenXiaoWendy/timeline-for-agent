@@ -1,0 +1,32 @@
+{
+  "name": "timeline-for-agent",
+  "version": "0.1.0",
+  "description": "Local timeline dashboard and screenshot toolkit for AI agents.",
+  "private": true,
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "bin": {
+    "timeline-for-agent": "./bin/timeline-for-agent.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "timeline-write": "node ./bin/timeline-for-agent.js write",
+    "timeline-build": "node ./bin/timeline-for-agent.js build",
+    "timeline-serve": "node ./bin/timeline-for-agent.js serve",
+    "timeline-dev": "node ./bin/timeline-for-agent.js dev",
+    "timeline-screenshot": "node ./bin/timeline-for-agent.js screenshot",
+    "check": "node --check ./src/index.js && node --check ./src/app/timeline-write-cli.js && node --check ./src/app/timeline-build-cli.js && node --check ./src/app/timeline-serve-cli.js && node --check ./src/app/timeline-dev-cli.js && node --check ./src/app/timeline-screenshot-cli.js && node --check ./src/infra/config/config.js && node --check ./src/infra/timeline/default-taxonomy.js && node --check ./src/infra/timeline/timeline-store.js && node --check ./src/infra/timeline/timeline-analytics.js && node --check ./src/infra/timeline/timeline-dashboard-builder.js && node --check ./src/infra/timeline/timeline-site-server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "esbuild": "^0.28.0",
+    "playwright-core": "^1.59.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "recharts": "^3.8.1",
+    "vis-timeline": "^8.5.0"
+  }
+}
