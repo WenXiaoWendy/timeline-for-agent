@@ -138,6 +138,9 @@ function App() {
             <span className="hero-title-cn">Life Tracking</span>
             <div className="hero-title-stack">
               <h1>Timeline</h1>
+              {data?.meta?.isDemoData ? (
+                <span className="hero-demo-pill">Demo Data</span>
+              ) : null}
             </div>
           </div>
           <div className="hero-meta-grid">

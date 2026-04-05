@@ -1,0 +1,148 @@
+{
+  "facts": {
+    "2026-04-03": {
+      "status": "final",
+      "updatedAt": "2026-04-03T15:30:00.000Z",
+      "source": null,
+      "events": [
+        {
+          "id": "fact:demo-breakfast:2026-04-03T00-30-00-000Z",
+          "startAt": "2026-04-03T00:30:00.000Z",
+          "endAt": "2026-04-03T01:00:00.000Z",
+          "title": "早餐和收拾出门",
+          "note": "起床后洗漱、吃早餐，整理包和电脑准备出门。",
+          "categoryId": "life",
+          "subcategoryId": "life.meal",
+          "eventNodeId": "evt.breakfast",
+          "tags": ["早餐", "出门前"],
+          "confidence": 0.86,
+          "sourceMessageIds": []
+        },
+        {
+          "id": "fact:demo-commute:2026-04-03T01-15-00-000Z",
+          "startAt": "2026-04-03T01:15:00.000Z",
+          "endAt": "2026-04-03T02:00:00.000Z",
+          "title": "通勤",
+          "note": "路上听播客，顺便回了几条消息。",
+          "categoryId": "travel",
+          "subcategoryId": "travel.commute",
+          "eventNodeId": "evt.commute",
+          "tags": ["地铁"],
+          "confidence": 0.82,
+          "sourceMessageIds": []
+        },
+        {
+          "id": "fact:demo-coding:2026-04-03T02-30-00-000Z",
+          "startAt": "2026-04-03T02:30:00.000Z",
+          "endAt": "2026-04-03T05:30:00.000Z",
+          "title": "专注编码",
+          "note": "推进主功能，连续几轮修界面和交互细节。",
+          "categoryId": "work",
+          "subcategoryId": "work.coding",
+          "eventNodeId": "evt.focus_coding",
+          "tags": ["开发"],
+          "confidence": 0.91,
+          "sourceMessageIds": []
+        },
+        {
+          "id": "fact:demo-lunch:2026-04-03T06-00-00-000Z",
+          "startAt": "2026-04-03T06:00:00.000Z",
+          "endAt": "2026-04-03T06:45:00.000Z",
+          "title": "午饭和放空",
+          "note": "边吃饭边休息，没有继续看屏幕。",
+          "categoryId": "life",
+          "subcategoryId": "life.meal",
+          "eventNodeId": "evt.lunch",
+          "tags": ["午饭"],
+          "confidence": 0.74,
+          "sourceMessageIds": []
+        },
+        {
+          "id": "fact:demo-chat:2026-04-03T13-00-00-000Z",
+          "startAt": "2026-04-03T13:00:00.000Z",
+          "endAt": "2026-04-03T13:40:00.000Z",
+          "title": "聊天和整理想法",
+          "note": "回复消息，顺手整理了后面的行动计划。",
+          "categoryId": "social",
+          "subcategoryId": "social.chat",
+          "eventNodeId": "evt.chatting",
+          "tags": ["消息"],
+          "confidence": 0.77,
+          "sourceMessageIds": []
+        }
+      ]
+    },
+    "2026-04-04": {
+      "status": "final",
+      "updatedAt": "2026-04-04T15:00:00.000Z",
+      "source": null,
+      "events": [
+        {
+          "id": "fact:demo-sleep:2026-04-04T00-20-00-000Z",
+          "startAt": "2026-04-04T00:20:00.000Z",
+          "endAt": "2026-04-04T06:10:00.000Z",
+          "title": "补觉",
+          "note": "前一天睡得晚，这天白天补了一大段睡眠。",
+          "categoryId": "rest",
+          "subcategoryId": "rest.sleep",
+          "eventNodeId": "evt.sleep",
+          "tags": ["睡眠"],
+          "confidence": 0.95,
+          "sourceMessageIds": []
+        },
+        {
+          "id": "fact:demo-shower:2026-04-04T07-10-00-000Z",
+          "startAt": "2026-04-04T07:10:00.000Z",
+          "endAt": "2026-04-04T07:35:00.000Z",
+          "title": "洗澡",
+          "note": "洗澡洗头，重新让状态回来一点。",
+          "categoryId": "life",
+          "subcategoryId": "life.hygiene",
+          "eventNodeId": "evt.shower",
+          "tags": ["洗澡"],
+          "confidence": 0.8,
+          "sourceMessageIds": []
+        },
+        {
+          "id": "fact:demo-headache:2026-04-04T08-00-00-000Z",
+          "startAt": "2026-04-04T08:00:00.000Z",
+          "endAt": "2026-04-04T08:40:00.000Z",
+          "title": "头痛休息",
+          "note": "状态不太好，停下来休息并观察要不要吃药。",
+          "categoryId": "health",
+          "subcategoryId": "health.rest",
+          "eventNodeId": "evt.headache_rest",
+          "tags": ["恢复"],
+          "confidence": 0.79,
+          "sourceMessageIds": []
+        },
+        {
+          "id": "fact:demo-show:2026-04-04T11-30-00-000Z",
+          "startAt": "2026-04-04T11:30:00.000Z",
+          "endAt": "2026-04-04T13:00:00.000Z",
+          "title": "看剧",
+          "note": "放松一下，但中途会提醒自己不要刷太久。",
+          "categoryId": "entertainment",
+          "subcategoryId": "entertainment.video",
+          "eventNodeId": "evt.watch_show",
+          "tags": ["追剧"],
+          "confidence": 0.7,
+          "sourceMessageIds": []
+        },
+        {
+          "id": "fact:demo-walk:2026-04-04T14-00-00-000Z",
+          "startAt": "2026-04-04T14:00:00.000Z",
+          "endAt": "2026-04-04T14:35:00.000Z",
+          "title": "散步",
+          "note": "出门走了一圈，让注意力和身体都切换一下。",
+          "categoryId": "exercise",
+          "subcategoryId": "exercise.walk",
+          "eventNodeId": "evt.walk",
+          "tags": ["户外"],
+          "confidence": 0.76,
+          "sourceMessageIds": []
+        }
+      ]
+    }
+  }
+}

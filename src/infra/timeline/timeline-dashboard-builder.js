@@ -5,13 +5,14 @@ const esbuild = require("esbuild");
 const { buildTimelineViews } = require("./timeline-analytics");
 
 async function buildTimelineDashboard({ store, siteDir, entryFile, cssFile }) {
-  const state = store.getState();
+  const state = applyDemoFallback(store.getState());
   const factsUpdatedAt = readFileUpdatedAt(store.factsFilePath);
   const taxonomyUpdatedAt = readFileUpdatedAt(store.taxonomyFilePath);
   const views = buildTimelineViews(state, {
     updatedAt: factsUpdatedAt || taxonomyUpdatedAt || "",
     factsUpdatedAt,
     taxonomyUpdatedAt,
+    isDemoData: Boolean(state.__demoData),
   });
 
   fs.mkdirSync(siteDir, { recursive: true });
@@ -47,6 +48,25 @@ async function buildTimelineDashboard({ store, siteDir, entryFile, cssFile }) {
   fs.writeFileSync(path.join(siteDir, "index.html"), buildIndexHtml(), "utf8");
 }
 
+function applyDemoFallback(state) {
+  const facts = state?.facts && typeof state.facts === "object" ? state.facts : {};
+  if (Object.keys(facts).length > 0) {
+    return state;
+  }
+
+  const demoFactsPath = path.join(__dirname, "..", "..", "..", "examples", "demo-facts.json");
+  const demoFacts = readDemoFacts(demoFactsPath);
+  if (!demoFacts || !Object.keys(demoFacts).length) {
+    return state;
+  }
+
+  return {
+    ...state,
+    __demoData: true,
+    facts: demoFacts,
+  };
+}
+
 function buildIndexHtml() {
   return [
     "<!doctype html>",
@@ -73,6 +93,15 @@ function readFileUpdatedAt(filePath) {
     return fs.statSync(filePath).mtime.toISOString();
   } catch {
     return "";
+  }
+}
+
+function readDemoFacts(filePath) {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return parsed?.facts && typeof parsed.facts === "object" ? parsed.facts : {};
+  } catch {
+    return null;
   }
 }
 

@@ -25,6 +25,7 @@ function buildTimelineViews(state, metaOverrides = {}) {
       updatedAt: metaOverrides.updatedAt || "",
       taxonomyUpdatedAt: metaOverrides.taxonomyUpdatedAt || "",
       factsUpdatedAt: metaOverrides.factsUpdatedAt || "",
+      isDemoData: Boolean(metaOverrides.isDemoData),
       timezone: state.timezone || "Asia/Shanghai",
       availableDates: dates,
       latestDate: dates[dates.length - 1] || "",

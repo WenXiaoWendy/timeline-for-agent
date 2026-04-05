@@ -146,6 +146,22 @@ input {
   gap: 4px;
 }
 
+.hero-demo-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(55, 74, 110, 0.12);
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
 .hero-title-cn {
   color: var(--muted);
   font-size: var(--text-lg);
