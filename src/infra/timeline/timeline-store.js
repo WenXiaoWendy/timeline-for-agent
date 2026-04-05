@@ -106,6 +106,7 @@ class TimelineStore {
     });
 
     const normalizedEvents = normalizeDayEvents(events, this.state.taxonomy);
+    validateDayEvents(normalizedDate, normalizedEvents, this.state.timezone);
     this.state.facts[normalizedDate] = {
       status: status === "final" ? "final" : "draft",
       updatedAt: new Date().toISOString(),
@@ -145,6 +146,7 @@ class TimelineStore {
     }
 
     const normalizedIncomingEvents = normalizeDayEvents(events, this.state.taxonomy);
+    validateDayEvents(normalizedDate, normalizedIncomingEvents, this.state.timezone);
     for (const event of normalizedIncomingEvents) {
       mergedEvents.set(event.id, event);
     }
@@ -415,6 +417,33 @@ function normalizeConfidence(value) {
     return 0.5;
   }
   return Math.max(0, Math.min(1, parsed));
+}
+
+function validateDayEvents(date, events, timezone) {
+  const normalizedDate = String(date || "").trim();
+  const resolvedTimezone = String(timezone || "").trim() || "Asia/Shanghai";
+  for (const event of Array.isArray(events) ? events : []) {
+    const startDate = formatDateInTimezone(event.startAt, resolvedTimezone);
+    const endDate = formatDateInTimezone(event.endAt, resolvedTimezone);
+    if (startDate !== normalizedDate || endDate !== normalizedDate) {
+      throw new Error(
+        `timeline 事件不能跨天，必须落在 ${normalizedDate} 当天内: ${event.title} (${event.startAt} ~ ${event.endAt})`
+      );
+    }
+  }
+}
+
+function formatDateInTimezone(value, timezone) {
+  try {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(Date.parse(value));
+  } catch {
+    return "";
+  }
 }
 
 function collectSourceMessageIds(events) {

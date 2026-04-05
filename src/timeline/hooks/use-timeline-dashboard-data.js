@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { buildTimelineViews } from "../../infra/timeline/timeline-analytics";
 
 const EMPTY_DASHBOARD_DATA = {
   meta: { availableDates: [] },
@@ -19,8 +20,7 @@ function useTimelineDashboardData() {
       ? `?v=${window.__TIMELINE_DEV_VERSION__}`
       : "";
 
-    fetch(`./dashboard-data.json${version}`, { cache: "no-store" })
-      .then((response) => response.json())
+    loadTimelineDashboardData(version)
       .then((nextData) => {
         if (cancelled) {
           return;
@@ -57,6 +57,19 @@ function useTimelineDashboardData() {
     setSelectedMonth,
     setSelectedWeek,
   };
+}
+
+async function loadTimelineDashboardData(version) {
+  const runtimeData = await fetchJson(`./__timeline_source_data${version}`).catch(() => null);
+  if (runtimeData?.state && runtimeData?.meta) {
+    return buildTimelineViews(runtimeData.state, runtimeData.meta);
+  }
+  return fetchJson(`./dashboard-data.json${version}`);
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url, { cache: "no-store" });
+  return response.json();
 }
 
 export { useTimelineDashboardData };

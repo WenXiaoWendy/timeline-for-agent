@@ -4,6 +4,7 @@ const path = require("path");
 
 const { TimelineStore } = require("../infra/timeline/timeline-store");
 const { buildTimelineDashboard } = require("../infra/timeline/timeline-dashboard-builder");
+const { getTimelineDemoFactsPath, loadTimelineSourceData } = require("../infra/timeline/timeline-source-data");
 
 async function runTimelineDevCommand(config) {
   const port = parsePort(process.argv.slice(3), config.timelinePort);
@@ -12,6 +13,7 @@ async function runTimelineDevCommand(config) {
     path.join(__dirname, "..", "infra", "timeline"),
     config.timelineTaxonomyFile,
     config.timelineFactsFile,
+    getTimelineDemoFactsPath(),
   ];
 
   const state = {
@@ -25,6 +27,18 @@ async function runTimelineDevCommand(config) {
 
   const server = http.createServer((request, response) => {
     const requestPath = normalizeRequestPath(request.url || "/");
+    if (requestPath === "__timeline_source_data") {
+      const store = createTimelineStore(config);
+      const payload = loadTimelineSourceData({ store });
+      response.writeHead(200, {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        pragma: "no-cache",
+        expires: "0",
+      });
+      response.end(JSON.stringify(payload));
+      return;
+    }
     if (requestPath === "__timeline_dev_events") {
       response.writeHead(200, {
         "content-type": "text/event-stream; charset=utf-8",
@@ -124,11 +138,7 @@ async function rebuild(state, config) {
   }
   state.building = true;
   try {
-    const store = new TimelineStore({
-      taxonomyFilePath: config.timelineTaxonomyFile,
-      factsFilePath: config.timelineFactsFile,
-      legacyFilePath: config.timelineDbFile,
-    });
+    const store = createTimelineStore(config);
     await buildTimelineDashboard({
       store,
       siteDir: config.timelineSiteDir,
@@ -147,6 +157,14 @@ async function rebuild(state, config) {
       await rebuild(state, config);
     }
   }
+}
+
+function createTimelineStore(config) {
+  return new TimelineStore({
+    taxonomyFilePath: config.timelineTaxonomyFile,
+    factsFilePath: config.timelineFactsFile,
+    legacyFilePath: config.timelineDbFile,
+  });
 }
 
 function injectHotReload(html, version) {

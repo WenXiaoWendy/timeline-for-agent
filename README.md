@@ -21,3 +21,10 @@ timeline-for-agent serve
 timeline-for-agent dev
 timeline-for-agent screenshot
 ```
+
+## 写入约束
+
+- 所有 `events` 都必须落在对应 `date` 当天内，不能跨天
+- 睡眠如果跨过 `00:00`，需要拆成两段写：
+  一段是当天凌晨的睡眠，一段是当天夜间入睡后的睡眠
+- 不要写一条从当天晚上直接跨到第二天早上的事件

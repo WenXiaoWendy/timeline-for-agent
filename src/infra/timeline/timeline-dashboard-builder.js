@@ -3,17 +3,11 @@ const path = require("path");
 const esbuild = require("esbuild");
 
 const { buildTimelineViews } = require("./timeline-analytics");
+const { loadTimelineSourceData } = require("./timeline-source-data");
 
 async function buildTimelineDashboard({ store, siteDir, entryFile, cssFile }) {
-  const state = applyDemoFallback(store.getState());
-  const factsUpdatedAt = readFileUpdatedAt(store.factsFilePath);
-  const taxonomyUpdatedAt = readFileUpdatedAt(store.taxonomyFilePath);
-  const views = buildTimelineViews(state, {
-    updatedAt: factsUpdatedAt || taxonomyUpdatedAt || "",
-    factsUpdatedAt,
-    taxonomyUpdatedAt,
-    isDemoData: Boolean(state.__demoData),
-  });
+  const sourceData = loadTimelineSourceData({ store });
+  const views = buildTimelineViews(sourceData.state, sourceData.meta);
 
   fs.mkdirSync(siteDir, { recursive: true });
   const assetsDir = path.join(siteDir, "assets");
@@ -48,25 +42,6 @@ async function buildTimelineDashboard({ store, siteDir, entryFile, cssFile }) {
   fs.writeFileSync(path.join(siteDir, "index.html"), buildIndexHtml(), "utf8");
 }
 
-function applyDemoFallback(state) {
-  const facts = state?.facts && typeof state.facts === "object" ? state.facts : {};
-  if (Object.keys(facts).length > 0) {
-    return state;
-  }
-
-  const demoFactsPath = path.join(__dirname, "..", "..", "..", "examples", "demo-facts.json");
-  const demoFacts = readDemoFacts(demoFactsPath);
-  if (!demoFacts || !Object.keys(demoFacts).length) {
-    return state;
-  }
-
-  return {
-    ...state,
-    __demoData: true,
-    facts: demoFacts,
-  };
-}
-
 function buildIndexHtml() {
   return [
     "<!doctype html>",
@@ -83,26 +58,6 @@ function buildIndexHtml() {
     "</body>",
     "</html>",
   ].join("\n");
-}
-
-function readFileUpdatedAt(filePath) {
-  try {
-    if (!filePath || !fs.existsSync(filePath)) {
-      return "";
-    }
-    return fs.statSync(filePath).mtime.toISOString();
-  } catch {
-    return "";
-  }
-}
-
-function readDemoFacts(filePath) {
-  try {
-    const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    return parsed?.facts && typeof parsed.facts === "object" ? parsed.facts : {};
-  } catch {
-    return null;
-  }
 }
 
 module.exports = {
