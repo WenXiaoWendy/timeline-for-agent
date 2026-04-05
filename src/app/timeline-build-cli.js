@@ -13,7 +13,7 @@ async function runTimelineBuildCommand(config) {
     store,
     siteDir: config.timelineSiteDir,
     entryFile: path.join(__dirname, "..", "timeline", "dashboard-app.jsx"),
-    cssFile: path.join(__dirname, "..", "timeline", "dashboard.css"),
+    cssFile: path.join(__dirname, "..", "timeline", "css", "dashboard.css"),
   });
   console.log(`timeline dashboard built: ${config.timelineSiteDir}`);
 }

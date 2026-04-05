@@ -133,7 +133,7 @@ async function rebuild(state, config) {
       store,
       siteDir: config.timelineSiteDir,
       entryFile: path.join(__dirname, "..", "timeline", "dashboard-app.jsx"),
-      cssFile: path.join(__dirname, "..", "timeline", "dashboard.css"),
+      cssFile: path.join(__dirname, "..", "timeline", "css", "dashboard.css"),
     });
     state.version = Date.now();
     for (const client of state.clients) {
