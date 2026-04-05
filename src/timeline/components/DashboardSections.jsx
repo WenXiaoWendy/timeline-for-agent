@@ -8,7 +8,6 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
@@ -95,6 +94,34 @@ function AnalyticsPanels({
   onCategorySelect,
   onSubcategorySelect,
 }) {
+  // Recharts renders pie charts as focusable SVG nodes. On WebKit, pointer clicks can
+  // briefly leave a native blue focus ring on the sector/surface even after disabling
+  // the accessibility layer. Clearing focus on pointer down/up keeps the pie charts
+  // visually stable. Bar charts likely need a different fix, so keep this scoped to pie.
+  const handlePieChartPointerDown = (event) => {
+    if (event?.detail <= 0) {
+      return;
+    }
+    if (event.target instanceof SVGElement) {
+      event.preventDefault?.();
+      event.target.blur?.();
+    }
+  };
+
+  const handlePieChartPointerCommit = (event) => {
+    if (event?.detail <= 0) {
+      return;
+    }
+    requestAnimationFrame(() => {
+      if (event.target instanceof SVGElement) {
+        event.target.blur?.();
+      }
+      if (document.activeElement instanceof HTMLElement || document.activeElement instanceof SVGElement) {
+        document.activeElement.blur?.();
+      }
+    });
+  };
+
   return (
     <>
       <section className="analytics-grid analytics-grid-top">
@@ -109,21 +136,23 @@ function AnalyticsPanels({
             <div className="pie-with-legend">
               <div className="pie-chart-shell">
                 <ResponsiveContainer width="100%" height={248}>
-                  <PieChart>
+                  <PieChart accessibilityLayer={false} onMouseDown={handlePieChartPointerDown} onMouseUp={handlePieChartPointerCommit}>
                     <Pie
                       data={categories}
                       dataKey="minutes"
                       nameKey="label"
+                      rootTabIndex={null}
                       innerRadius={58}
                       outerRadius={98}
                       paddingAngle={2}
                       stroke="none"
+                      style={{ outline: "none" }}
                       labelLine={{ stroke: "rgba(127, 140, 163, 0.6)", strokeWidth: 1 }}
                       label={renderPieLabel}
                       onClick={(entry) => onCategorySelect(entry.categoryId)}
                     >
                       {categories.map((entry) => (
-                        <Cell key={entry.categoryId} fill={entry.color} stroke="none" />
+                        <Cell key={entry.categoryId} fill={entry.color} stroke="none" style={{ outline: "none" }} />
                       ))}
                     </Pie>
                   </PieChart>
@@ -162,21 +191,23 @@ function AnalyticsPanels({
             <div className="pie-with-legend">
               <div className="pie-chart-shell">
                 <ResponsiveContainer width="100%" height={248}>
-                  <PieChart>
+                  <PieChart accessibilityLayer={false} onMouseDown={handlePieChartPointerDown} onMouseUp={handlePieChartPointerCommit}>
                     <Pie
                       data={styledSubcategories}
                       dataKey="minutes"
                       nameKey="label"
+                      rootTabIndex={null}
                       innerRadius={58}
                       outerRadius={98}
                       paddingAngle={2}
                       stroke="none"
+                      style={{ outline: "none" }}
                       labelLine={{ stroke: "rgba(127, 140, 163, 0.6)", strokeWidth: 1 }}
                       label={renderPieLabel}
                       onClick={(entry) => onSubcategorySelect(entry.subcategoryId)}
                     >
                       {styledSubcategories.map((entry) => (
-                        <Cell key={entry.subcategoryId} fill={entry.shadeColor} stroke="none" />
+                        <Cell key={entry.subcategoryId} fill={entry.shadeColor} stroke="none" style={{ outline: "none" }} />
                       ))}
                     </Pie>
                   </PieChart>
@@ -218,7 +249,6 @@ function AnalyticsPanels({
                   <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} />
                   <XAxis dataKey="label" stroke={chartAxisStroke} />
                   <YAxis stroke={chartAxisStroke} tickFormatter={formatMinutesTick} />
-                  <Tooltip formatter={(value) => formatMinutes(value)} />
                   <Bar dataKey="minutes" fill={activeDetail.color} radius={[8, 8, 0, 0]}>
                     <LabelList dataKey="minutes" position="top" offset={8} formatter={formatCompactDuration} className="trend-bar-label" />
                   </Bar>

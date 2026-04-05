@@ -384,6 +384,29 @@ input {
   outline: none;
 }
 
+/* Pie charts in Recharts/WebKit can flash a native focus ring on SVG sectors. */
+.pie-chart-shell .recharts-surface,
+.pie-chart-shell .recharts-pie,
+.pie-chart-shell .recharts-pie-sector,
+.pie-chart-shell .recharts-sector {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pie-chart-shell .recharts-surface:focus,
+.pie-chart-shell .recharts-pie:focus,
+.pie-chart-shell .recharts-pie-sector:focus,
+.pie-chart-shell .recharts-sector:focus,
+.pie-chart-shell .recharts-surface:active,
+.pie-chart-shell .recharts-pie:active,
+.pie-chart-shell .recharts-pie-sector:active,
+.pie-chart-shell .recharts-sector:active,
+.pie-chart-shell .recharts-surface:focus-visible,
+.pie-chart-shell .recharts-pie:focus-visible,
+.pie-chart-shell .recharts-pie-sector:focus-visible,
+.pie-chart-shell .recharts-sector:focus-visible {
+  outline: none !important;
+}
+
 .timeline-wrap {
   position: relative;
 }
