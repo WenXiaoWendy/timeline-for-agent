@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
+import * as Select from "@radix-ui/react-select";
+import React, { useState } from "react";
 
-import { AnalyticsPanels, HeaderStats } from "./dashboard-sections.jsx";
-import { TimelinePanel } from "./timeline-panel.jsx";
+import { AnalyticsPanels, HeaderStats } from "./DashboardSections.jsx";
+import { TimelinePanel } from "./TimelinePanel.jsx";
 import { useTimelineDashboardData } from "../hooks/use-timeline-dashboard-data.js";
 import { useTimelineSelection } from "../hooks/use-timeline-selection.js";
 
@@ -141,62 +143,34 @@ function RangeSelector({
 }
 
 function RangeDropdown({ value, options, onChange }) {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef(null);
   const selected = options.find((option) => option.value === value) || options[0] || null;
 
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-    const handlePointerDown = (event) => {
-      if (!rootRef.current?.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open]);
-
   return (
-    <div className={`range-select ${open ? "open" : ""}`} ref={rootRef}>
-      <button
-        type="button"
-        className="range-select-trigger"
-        onClick={() => setOpen((current) => !current)}
-        aria-haspopup="listbox"
-        aria-expanded={open ? "true" : "false"}
-      >
-        <span>{selected?.label || "未选择"}</span>
-        <span className="range-select-chevron" aria-hidden="true" />
-      </button>
-      {open ? (
-        <div className="range-select-menu" role="listbox">
+    <Select.Root value={value} onValueChange={onChange}>
+      <div className="range-select">
+        <Select.Trigger className="range-select-trigger" aria-label="选择时间范围">
+          <Select.Value>{selected?.label || "未选择"}</Select.Value>
+          <Select.Icon className="range-select-icon">
+            <ChevronDownIcon aria-hidden="true" />
+          </Select.Icon>
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Content className="range-select-menu" position="popper" sideOffset={8}>
+            <Select.Viewport className="range-select-viewport">
           {options.map((option) => (
-            <button
-              type="button"
+            <Select.Item
               key={option.value}
-              className={`range-select-option ${option.value === value ? "active" : ""}`}
-              onClick={() => {
-                onChange(option.value);
-                setOpen(false);
-              }}
+              className="range-select-option"
+              value={option.value}
             >
-              {option.label}
-            </button>
+              <Select.ItemText>{option.label}</Select.ItemText>
+            </Select.Item>
           ))}
-        </div>
-      ) : null}
-    </div>
+            </Select.Viewport>
+          </Select.Content>
+        </Select.Portal>
+      </div>
+    </Select.Root>
   );
 }
 

@@ -323,38 +323,45 @@ input {
   text-align: left;
 }
 
-.range-select.open .range-select-trigger {
+.range-select-trigger[data-state="open"] {
   border-color: rgba(47, 122, 248, 0.18);
   background: rgba(255, 255, 255, 0.9);
 }
 
-.range-select-chevron {
-  width: 10px;
-  height: 10px;
-  border-right: 1.5px solid rgba(49, 64, 90, 0.58);
-  border-bottom: 1.5px solid rgba(49, 64, 90, 0.58);
-  transform: rotate(45deg) translateY(-1px);
+.range-select-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(49, 64, 90, 0.58);
   flex: none;
 }
 
-.range-select.open .range-select-chevron {
-  transform: rotate(225deg) translateY(-1px);
+.range-select-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.range-select-trigger[data-state="open"] .range-select-icon {
+  transform: rotate(180deg);
 }
 
 .range-select-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
   z-index: 30;
   display: grid;
   gap: 6px;
   padding: 8px;
+  min-width: var(--radix-select-trigger-width);
   border: 1px solid rgba(55, 74, 110, 0.08);
   border-radius: 16px;
   background: rgba(255, 252, 247, 0.96);
   box-shadow: 0 18px 36px rgba(43, 57, 84, 0.12);
   backdrop-filter: blur(18px);
+}
+
+.range-select-viewport {
+  display: grid;
+  gap: 6px;
 }
 
 .range-select-option {
@@ -370,10 +377,11 @@ input {
   text-align: left;
 }
 
-.range-select-option:hover,
-.range-select-option.active {
+.range-select-option[data-highlighted],
+.range-select-option[data-state="checked"] {
   background: rgba(47, 122, 248, 0.1);
   border-color: rgba(47, 122, 248, 0.14);
+  outline: none;
 }
 
 .timeline-wrap {
