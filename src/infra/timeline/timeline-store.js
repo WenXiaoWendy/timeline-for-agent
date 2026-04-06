@@ -50,17 +50,17 @@ class TimelineStore {
   }
 
   save() {
-    fs.writeFileSync(this.taxonomyFilePath, JSON.stringify({
+    writeJsonFileAtomic(this.taxonomyFilePath, {
       version: this.state.version,
       timezone: this.state.timezone,
       taxonomy: this.state.taxonomy,
-    }, null, 2));
-    fs.writeFileSync(this.factsFilePath, JSON.stringify({
+    });
+    writeJsonFileAtomic(this.factsFilePath, {
       version: this.state.version,
       timezone: this.state.timezone,
       facts: this.state.facts,
       proposals: this.state.proposals,
-    }, null, 2));
+    });
   }
 
   getState() {
@@ -464,6 +464,26 @@ function readJsonFile(filePath) {
     return JSON.parse(fs.readFileSync(filePath, "utf8"));
   } catch {
     return null;
+  }
+}
+
+function writeJsonFileAtomic(filePath, value) {
+  const directory = path.dirname(filePath);
+  const tempFilePath = path.join(
+    directory,
+    `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`
+  );
+
+  try {
+    fs.writeFileSync(tempFilePath, JSON.stringify(value, null, 2));
+    fs.renameSync(tempFilePath, filePath);
+  } catch (error) {
+    try {
+      fs.unlinkSync(tempFilePath);
+    } catch {
+      // Ignore cleanup failures for missing or already-moved temp files.
+    }
+    throw error;
   }
 }
 
