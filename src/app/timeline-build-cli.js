@@ -1,21 +1,8 @@
-const path = require("path");
-
-const { TimelineStore } = require("../infra/timeline/timeline-store");
-const { buildTimelineDashboard } = require("../infra/timeline/timeline-dashboard-builder");
+const { buildTimelineSite } = require("../application/timeline/build-dashboard");
 
 async function runTimelineBuildCommand(config) {
-  const store = new TimelineStore({
-    taxonomyFilePath: config.timelineTaxonomyFile,
-    factsFilePath: config.timelineFactsFile,
-    legacyFilePath: config.timelineDbFile,
-  });
-  await buildTimelineDashboard({
-    store,
-    siteDir: config.timelineSiteDir,
-    entryFile: path.join(__dirname, "..", "timeline", "dashboard-app.jsx"),
-    cssFile: path.join(__dirname, "..", "timeline", "css", "dashboard.css"),
-  });
-  console.log(`timeline dashboard built: ${config.timelineSiteDir}`);
+  const result = await buildTimelineSite(config);
+  console.log(`timeline dashboard built: ${result.siteDir}`);
 }
 
 module.exports = { runTimelineBuildCommand };

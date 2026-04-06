@@ -1,4 +1,4 @@
-const { TimelineStore } = require("../infra/timeline/timeline-store");
+const { writeTimelineDay } = require("../application/timeline/write-day");
 
 async function runTimelineWriteCommand(config) {
   const options = parseArgs(process.argv.slice(3));
@@ -13,41 +13,17 @@ async function runTimelineWriteCommand(config) {
   }
 
   const payload = parsePayload(body);
-  const date = String(options.date || payload.date || "").trim();
-  if (!date) {
-    throw new Error("timeline-write 缺少日期，传 --date YYYY-MM-DD 或在 JSON 里带 date");
-  }
-
-  const store = new TimelineStore({
-    taxonomyFilePath: config.timelineTaxonomyFile,
-    factsFilePath: config.timelineFactsFile,
-    legacyFilePath: config.timelineDbFile,
+  const result = await writeTimelineDay(config, {
+    ...payload,
+    date: options.date || payload.date || "",
+    mode: options.mode || payload.mode || "merge",
+    finalize: options.finalize,
   });
 
-  const mode = options.mode || String(payload.mode || "merge").trim().toLowerCase() || "merge";
-  const common = {
-    date,
-    status: options.finalize ? "final" : payload.status || "",
-    source: payload.source || null,
-    events: Array.isArray(payload.events) ? payload.events : [],
-    newEventNodes: Array.isArray(payload.newEventNodes) ? payload.newEventNodes : [],
-  };
-
-  const saved = mode === "replace"
-    ? store.replaceDay(common)
-    : store.mergeDay({
-      ...common,
-      dropEventIds: Array.isArray(payload.dropEventIds) ? payload.dropEventIds : [],
-    });
-
-  if (options.finalize) {
-    store.finalizeDay(date);
-  }
-
-  console.log(`timeline written: ${date}`);
-  console.log(`mode: ${mode}`);
-  console.log(`events: ${saved.events.length}`);
-  console.log(`status: ${options.finalize ? "final" : saved.status}`);
+  console.log(`timeline written: ${result.date}`);
+  console.log(`mode: ${result.mode}`);
+  console.log(`events: ${result.eventCount}`);
+  console.log(`status: ${result.status}`);
 }
 
 function parseArgs(args) {

@@ -1,9 +1,8 @@
-const { createTimelineSiteServer, listenTimelineSiteServer } = require("../infra/timeline/timeline-site-server");
+const { startTimelineSiteServer } = require("../application/timeline/serve-site");
 
 async function runTimelineServeCommand(config) {
   const port = parsePort(process.argv.slice(3), config.timelinePort);
-  const server = createTimelineSiteServer({ siteDir: config.timelineSiteDir });
-  const info = await listenTimelineSiteServer(server, { port });
+  const { info } = await startTimelineSiteServer(config, { port });
   console.log(`timeline dashboard: ${info.url}`);
 }
 
