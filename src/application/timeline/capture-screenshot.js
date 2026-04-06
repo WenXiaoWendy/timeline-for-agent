@@ -29,7 +29,7 @@ async function captureTimelineScreenshot(config, options = {}) {
     serverInfo = started.info;
 
     browser = await chromium.launch({
-      executablePath: resolveChromeExecutablePath(),
+      executablePath: resolveChromeExecutablePath(config),
       headless: true,
       args: [
         "--disable-dev-shm-usage",
@@ -117,19 +117,88 @@ function parseNonNegativeInt(value, fallback) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
-function resolveChromeExecutablePath() {
-  const candidates = [
-    process.env.TIMELINE_FOR_AGENT_CHROME_PATH || "",
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    path.join(os.homedir(), "Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
-  ].filter(Boolean);
+function resolveChromeExecutablePath(config = {}) {
+  const configuredPath = String(config.chromeExecutablePath || "").trim();
+  const playwrightManagedPath = resolvePlaywrightExecutablePath();
+  const candidates = dedupePaths([
+    configuredPath,
+    playwrightManagedPath,
+    ...resolveSystemBrowserCandidates(),
+  ]);
 
   for (const candidate of candidates) {
     if (fs.existsSync(candidate)) {
       return candidate;
     }
   }
-  throw new Error("找不到可用的 Chrome，可设置 TIMELINE_FOR_AGENT_CHROME_PATH");
+  throw new Error(
+    "找不到可用的 Chromium/Chrome，可设置 TIMELINE_FOR_AGENT_CHROME_PATH 或先安装 Playwright 浏览器"
+  );
+}
+
+function resolvePlaywrightExecutablePath() {
+  try {
+    if (typeof chromium.executablePath !== "function") {
+      return "";
+    }
+    return String(chromium.executablePath() || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+function resolveSystemBrowserCandidates() {
+  if (process.platform === "darwin") {
+    return [
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      path.join(os.homedir(), "Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
+      "/Applications/Chromium.app/Contents/MacOS/Chromium",
+      path.join(os.homedir(), "Applications/Chromium.app/Contents/MacOS/Chromium"),
+      "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+      path.join(os.homedir(), "Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"),
+    ];
+  }
+
+  if (process.platform === "win32") {
+    const localAppData = String(process.env.LOCALAPPDATA || "").trim();
+    const programFiles = String(process.env.PROGRAMFILES || "").trim();
+    const programFilesX86 = String(process.env["PROGRAMFILES(X86)"] || "").trim();
+    return [
+      path.join(localAppData, "Google", "Chrome", "Application", "chrome.exe"),
+      path.join(programFiles, "Google", "Chrome", "Application", "chrome.exe"),
+      path.join(programFilesX86, "Google", "Chrome", "Application", "chrome.exe"),
+      path.join(localAppData, "Chromium", "Application", "chrome.exe"),
+      path.join(programFiles, "Chromium", "Application", "chrome.exe"),
+      path.join(programFilesX86, "Chromium", "Application", "chrome.exe"),
+      path.join(localAppData, "Microsoft", "Edge", "Application", "msedge.exe"),
+      path.join(programFiles, "Microsoft", "Edge", "Application", "msedge.exe"),
+      path.join(programFilesX86, "Microsoft", "Edge", "Application", "msedge.exe"),
+    ];
+  }
+
+  return [
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium-browser",
+    "/usr/bin/chromium",
+    "/snap/bin/chromium",
+    "/opt/google/chrome/chrome",
+    "/opt/microsoft/msedge/msedge",
+  ];
+}
+
+function dedupePaths(paths) {
+  const seen = new Set();
+  const output = [];
+  for (const candidate of Array.isArray(paths) ? paths : []) {
+    const normalized = String(candidate || "").trim();
+    if (!normalized || seen.has(normalized)) {
+      continue;
+    }
+    seen.add(normalized);
+    output.push(normalized);
+  }
+  return output;
 }
 
 async function waitForDashboardReady(page) {
