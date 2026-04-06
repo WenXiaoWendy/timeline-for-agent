@@ -28,7 +28,11 @@
 
 ```bash
 timeline-for-agent help
+timeline-for-agent categories
+timeline-for-agent proposals
+timeline-for-agent read --help
 timeline-for-agent write --help
+timeline-for-agent read --date 2026-04-06
 timeline-for-agent write --date 2026-04-06 --stdin
 timeline-for-agent build
 timeline-for-agent serve
@@ -43,6 +47,16 @@ timeline-for-agent screenshot
 - 睡眠如果跨过 `00:00`，需要拆成两段写：
   一段是当天凌晨的睡眠，一段是当天夜间入睡后的睡眠
 - 不要写一条从当天晚上直接跨到第二天早上的事件
+
+## 读取和修改流程
+
+- 如果不确定该复用哪个 category / subcategory / eventNode，先执行 `timeline-for-agent categories`
+- 如果是补充新内容，且上下文已经足够、目标日期明确、写入位置也明确，可以直接执行 `timeline-for-agent write`
+- 如果是修改、删除、覆盖或替换已有内容，先执行 `timeline-for-agent read --date YYYY-MM-DD`
+- `read` 只返回目标日期的受控事件数据，不返回完整 facts 或 taxonomy
+- 确认要改的事件后，再执行 `timeline-for-agent write`
+- 如果要排查新增了哪些 eventNode 提案，执行 `timeline-for-agent proposals`
+- 不推荐直接读取或修改原始 JSON 文件
 
 ## Agent 集成
 

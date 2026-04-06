@@ -11,6 +11,58 @@
 
 ## 推荐工具列表
 
+### `timeline_list_categories`
+
+用途：
+- 读取当前可用的 category / subcategory / eventNode 摘要
+
+何时使用：
+- 写入前需要确认应该复用哪个分类或 eventNode
+- 不确定这次是否真的需要新增 eventNode
+
+description 示例：
+
+```text
+List the current controlled category, subcategory, and event node taxonomy summary. Use this before writing when the model needs to choose an existing classification instead of inventing a new one.
+```
+
+### `timeline_list_proposals`
+
+用途：
+- 读取新增 eventNode 的 proposals
+
+何时使用：
+- 需要排查最近为什么出现了新 eventNode
+- 需要查看某天新增了哪些候选节点
+
+description 示例：
+
+```text
+List the current event node proposals created during writes. Use this for inspection and debugging when new event nodes were introduced.
+```
+
+### `timeline_read_day`
+
+用途：
+- 读取某一天当前已有的时间轴事件
+
+何时使用：
+- 用户要修改某天已有数据
+- 在写入前需要确认当天已存在的事件
+
+何时不要用：
+- 用户要求直接写入一整天的全新数据且无需参考现状
+- 用户想看整库原始 JSON
+
+输入建议：
+- `date`: `YYYY-MM-DD`
+
+description 示例：
+
+```text
+Read the current timeline events for a single day. Use this before editing an existing day so the model can work from the target day's controlled data instead of reading the raw source files.
+```
+
 ### `timeline_write_day`
 
 用途：
@@ -121,6 +173,9 @@ Capture a screenshot of the local timeline dashboard. This tool handles build, t
 
 无论调用入口是 CLI 还是 MCP，都应该遵守：
 
+- 不确定分类映射时，优先先看 categories
+- 新增内容且上下文充足时，可以直接写入
+- 修改已有数据前，优先先读目标日期，再执行写入
 - 优先调用高层业务动作，而不是读源码推断行为
 - 写入数据时禁止跨天事件
 - 如果现有命令或 tool 已能完成任务，不要改实现代码

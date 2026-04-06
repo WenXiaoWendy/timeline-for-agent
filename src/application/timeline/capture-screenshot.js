@@ -134,6 +134,13 @@ function resolveChromeExecutablePath() {
 
 async function waitForDashboardReady(page) {
   await page.locator(".page").waitFor({ state: "visible", timeout: 15_000 });
+  await page.waitForFunction(async () => {
+    if (!("fonts" in document) || !document.fonts || typeof document.fonts.ready?.then !== "function") {
+      return true;
+    }
+    await document.fonts.ready;
+    return true;
+  }, { timeout: 15_000 });
   const hasTimeline = await page.locator(".timeline-canvas .vis-timeline").isVisible().catch(() => false);
   if (!hasTimeline) {
     await page.waitForFunction(() => {
@@ -141,7 +148,7 @@ async function waitForDashboardReady(page) {
       const heroStats = document.querySelectorAll(".hero-stat-card").length;
       return !!emptyState || heroStats > 0;
     }, { timeout: 15_000 });
-    await page.waitForTimeout(1200);
+    await page.waitForTimeout(2400);
     return;
   }
 
@@ -191,7 +198,7 @@ async function waitForDashboardReady(page) {
       return text.length > 0 && rect.width > 6 && rect.height > 6;
     });
   }, { timeout: 15_000 });
-  await page.waitForTimeout(6500);
+  await page.waitForTimeout(9000);
 }
 
 function buildPageScreenshotStyles(sidePadding) {

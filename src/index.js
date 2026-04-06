@@ -4,6 +4,9 @@ const path = require("path");
 const dotenv = require("dotenv");
 
 const { readConfig } = require("./infra/config/config");
+const { runTimelineCategoriesCommand } = require("./app/timeline-categories-cli");
+const { runTimelineProposalsCommand } = require("./app/timeline-proposals-cli");
+const { runTimelineReadCommand } = require("./app/timeline-read-cli");
 const { runTimelineWriteCommand } = require("./app/timeline-write-cli");
 const { runTimelineBuildCommand } = require("./app/timeline-build-cli");
 const { runTimelineServeCommand } = require("./app/timeline-serve-cli");
@@ -39,6 +42,9 @@ function printHelp() {
 用法: timeline-for-agent <命令>
 
 命令:
+  categories   读取当前可用的分类和 eventNode 摘要
+  proposals    读取新增 eventNode 的 proposals
+  read         读取某天当前已有的时间轴事件 JSON
   write        写入或增量更新某天的时间轴 JSON
   build        构建本地时间轴静态页面
   serve        本地启动时间轴静态页面服务
@@ -60,6 +66,21 @@ async function main() {
 
   if (command === "write") {
     await runTimelineWriteCommand(config);
+    return;
+  }
+
+  if (command === "read") {
+    await runTimelineReadCommand(config);
+    return;
+  }
+
+  if (command === "categories") {
+    await runTimelineCategoriesCommand(config);
+    return;
+  }
+
+  if (command === "proposals") {
+    await runTimelineProposalsCommand(config);
     return;
   }
 

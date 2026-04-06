@@ -53,8 +53,18 @@
 
 ### 写入数据
 
-1. `timeline-for-agent write --help`
-2. `timeline-for-agent write --date YYYY-MM-DD --stdin`
+1. 如需确认分类或 eventNode，先执行 `timeline-for-agent categories`
+2. 如需修改已有数据，执行 `timeline-for-agent read --date YYYY-MM-DD`
+3. `timeline-for-agent write --help`
+4. `timeline-for-agent write --date YYYY-MM-DD --stdin`
+
+修改约束：
+
+- 如果目标是“新增当天内容”，且上下文已经足够、日期明确、写入位置明确，可以直接写入
+- 如果目标是“修改已有某段数据”，先读目标日期，再生成写入 payload
+- 如果不确定该复用哪个 eventNode，先看 `categories`
+- 不要为了修改某一天而直接读取完整原始 JSON
+- `read` 返回的是目标日期的受控数据，不是整库导出
 
 ### 构建和预览
 
