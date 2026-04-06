@@ -88,6 +88,7 @@ function AnalyticsPanels({
   chartAxisStroke,
   chartGridStroke,
   currentAggregate,
+  currentRangeLabel,
   selectedCategoryId,
   selectedSubcategoryId,
   styledSubcategories,
@@ -130,7 +131,7 @@ function AnalyticsPanels({
             <div className="panel-title-group">
               <h2>分布</h2>
             </div>
-            <span>{currentAggregate ? formatMinutes(currentAggregate.totalMinutes) : "暂无数据"}</span>
+            <span>{currentRangeLabel}</span>
           </div>
           {categories.length ? (
             <div className="pie-with-legend">
@@ -161,6 +162,7 @@ function AnalyticsPanels({
               <PieLegend
                 items={categories.map((category) => ({
                   id: category.categoryId,
+                  kind: "category",
                   label: category.label,
                   color: category.color,
                   minutes: category.minutes,
@@ -216,6 +218,7 @@ function AnalyticsPanels({
               <PieLegend
                 items={styledSubcategories.map((subcategory) => ({
                   id: subcategory.subcategoryId,
+                  kind: "subcategory",
                   label: subcategory.label,
                   color: subcategory.shadeColor,
                   minutes: subcategory.minutes,
@@ -272,7 +275,7 @@ function AnalyticsPanels({
                 </span>
               ) : null}
             </div>
-            <span>{activeDetail ? "按时间块展示" : "等待类别或子类选择"}</span>
+            <span>{currentRangeLabel}</span>
           </div>
           {activeDetail?.events?.length ? (
             <EventBlockGrid events={activeDetail.events} color={activeDetail.color} />
@@ -294,6 +297,9 @@ function PieLegend({ items }) {
           type="button"
           className={`pie-legend-row ${item.active ? "active" : ""}`}
           onClick={item.onClick}
+          data-legend-kind={item.kind || ""}
+          data-legend-id={item.id}
+          data-legend-label={item.label}
         >
           <span className="dot" style={{ backgroundColor: item.color }} />
           <span className="pie-legend-label">{item.label}</span>

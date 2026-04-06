@@ -75,20 +75,32 @@
 ### 截图
 
 1. `timeline-for-agent screenshot --output ./timeline-shot.png`
-2. 如需局部截图，优先使用受控 selector，而不是自由拼 CSS
-3. 只有内置区域不满足时，才退回自定义 selector
+2. 如需先调整视图，优先传结构化参数：`range/date/week/month/category/detail`
+3. 如需局部截图，优先使用受控 selector，而不是自由拼 CSS
+4. 只有内置区域不满足时，才退回自定义 selector
 
 局部截图受控 selector：
 
+- `main`：主视图整页
 - `timeline`：时间轴区域
 - `analytics`：类别分布、子类明细和趋势三块分析区
 - `events`：事件明细区
 
 推荐语言映射：
 
+- “截主视图” / “截整页” -> `--selector main`
 - “截时间轴” / “只截 timeline” -> `--selector timeline`
 - “截类别明细趋势” / “截分析区” -> `--selector analytics`
 - “截事件” / “只截事件列表” -> `--selector events`
+- “截 2026-04-05 的日视图时间轴” -> `--range day --date 2026-04-05 --selector timeline`
+- “截 2026-04 的月视图分析区” -> `--range month --month 2026-04 --selector analytics`
+- “截工作 > 编码的分析区” -> `--range week --category 工作 --detail 编码 --selector analytics`
+- “截工作 > 编码的事件列表” -> `--range week --category 工作 --detail 编码 --selector events`
+
+额外约束：
+
+- 只要用户想看某个分类或明细的时间分布，优先使用 `analytics`
+- 只有明确说“事件列表”或“事件卡片”时，才使用 `events`
 
 ## 为什么要这样约束
 

@@ -18,11 +18,23 @@
 
 ![Timeline Dashboard](./examples/timeline-dashboard-main-view.png)
 
-其他局部截图效果可在 `examples/` 查看：
+局部筛选示例：
+
+需要编码类别的分析局部截图时，可描述为“截 2026-04 的月视图分析区，筛到工作 > 编码”：
+
+![2026-04 月视图中工作 > 编码的分析局部截图](./examples/screenshot-combos/month-2026-04-work-coding-analytics.png)
+
+其他局部截图和排列组合示例可在 `examples/` 查看：
 
 - `timeline-dashboard-timeline-view.png`
 - `timeline-dashboard-analytics-view.png`
 - `timeline-dashboard-events-view.png`
+- `screenshot-combos/week-main-default.png`
+- `screenshot-combos/week-analytics-default.png`
+- `screenshot-combos/month-2026-04-work-coding-analytics.png`
+- `screenshot-combos/week-rest-sleep-events.png`
+- `screenshot-combos/day-2026-04-05-timeline.png`
+- `screenshot-combos/month-2026-04-analytics.png`
 
 ## CLI
 
@@ -69,7 +81,9 @@ timeline-for-agent screenshot
 
 - `timeline-for-agent screenshot` 默认截整页
 - 如果只截局部，优先使用受控 selector，而不是临时编 CSS
+- 如果要在截图前切换日/周/月、时间范围、分类或明细，优先用结构化参数，不要让模型自己编 Playwright 步骤
 - 当前支持三个内置值：
+  - `main`：主视图整页
   - `timeline`：时间轴区域
   - `analytics`：类别分布、子类明细和趋势三块分析区
   - `events`：事件明细区
@@ -77,15 +91,30 @@ timeline-for-agent screenshot
 示例：
 
 ```bash
+timeline-for-agent screenshot --selector main
 timeline-for-agent screenshot --selector timeline
 timeline-for-agent screenshot --selector analytics
 timeline-for-agent screenshot --selector events
+timeline-for-agent screenshot --range day --date 2026-04-05 --selector timeline
+timeline-for-agent screenshot --range month --month 2026-04 --selector analytics
+timeline-for-agent screenshot --range week --category 工作 --detail 编码 --selector analytics
+timeline-for-agent screenshot --range week --category 工作 --detail 编码 --selector events
 ```
 
 推荐的自然语言描述：
 
+- “截主视图” / “截整页”
 - “截时间轴” / “只截 timeline”
 - “截类别明细趋势” / “截分析区”
 - “截事件” / “只截事件列表”
+- “截 2026-04-05 的日视图时间轴”
+- “截 2026-04 的月视图分析区”
+- “截工作 > 编码的分析区”
+- “截工作 > 编码的事件列表”
 
 只有在这三类都不满足时，才传自定义 CSS selector。
+
+选择建议：
+
+- 只要用户想看某个分类或明细的时间分布，优先使用 `--selector analytics`
+- 只有明确要看事件卡片列表时，才使用 `--selector events`

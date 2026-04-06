@@ -6,6 +6,7 @@ import { AnalyticsPanels, HeaderStats } from "./DashboardSections.jsx";
 import { TimelinePanel } from "./TimelinePanel.jsx";
 import { useTimelineDashboardData } from "../hooks/use-timeline-dashboard-data.js";
 import { useTimelineSelection } from "../hooks/use-timeline-selection.js";
+import { formatRangeSelection } from "../lib/dashboard-helpers.js";
 
 function DashboardApp() {
   const chartGridStroke = "var(--chart-grid)";
@@ -40,6 +41,7 @@ function DashboardApp() {
     selectedMonth,
     selectedWeek,
   });
+  const currentRangeLabel = currentAggregate?.label || formatRangeSelection(range, currentKey) || "未选择";
 
   return (
     <div className="page-shell">
@@ -91,6 +93,7 @@ function DashboardApp() {
           chartAxisStroke={chartAxisStroke}
           chartGridStroke={chartGridStroke}
           currentAggregate={currentAggregate}
+          currentRangeLabel={currentRangeLabel}
           selectedCategoryId={selectedCategoryId}
           selectedSubcategoryId={selectedSubcategoryId}
           styledSubcategories={styledSubcategories}
@@ -148,7 +151,7 @@ function RangeDropdown({ value, options, onChange }) {
   return (
     <Select.Root value={value} onValueChange={onChange}>
       <div className="range-select">
-        <Select.Trigger className="range-select-trigger" aria-label="选择时间范围">
+        <Select.Trigger className="range-select-trigger" aria-label="选择时间范围" data-range-trigger="true">
           <Select.Value>{selected?.label || "未选择"}</Select.Value>
           <Select.Icon className="range-select-icon">
             <ChevronDownIcon aria-hidden="true" />
@@ -162,6 +165,8 @@ function RangeDropdown({ value, options, onChange }) {
               key={option.value}
               className="range-select-option"
               value={option.value}
+              data-range-option-value={option.value}
+              data-range-option-label={option.label}
             >
               <Select.ItemText>{option.label}</Select.ItemText>
             </Select.Item>
@@ -181,6 +186,7 @@ function TabBar({ value, onChange, items }) {
         <button
           type="button"
           key={item.id}
+          data-range-id={item.id}
           className={value === item.id ? "active" : ""}
           onClick={() => onChange(item.id)}
         >

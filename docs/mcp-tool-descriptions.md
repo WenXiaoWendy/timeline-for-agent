@@ -144,6 +144,12 @@ Start the local timeline development server with automatic rebuilds when source 
 输入建议：
 - `outputFile`，例如 `./timeline-shot.png`
 - `selector`
+- `range`
+- `date`
+- `week`
+- `month`
+- `category`
+- `detail`
 - `width`
 - `height`
 - `sidePadding`
@@ -156,8 +162,10 @@ Capture a screenshot of the local timeline dashboard. This tool handles build, t
 
 局部截图约束：
 
+- 优先传结构化视图参数，不要让模型自己编 Playwright 点击流程
 - 优先使用受控 selector，而不是让模型自由生成 CSS
 - 当前内置值建议固定为：
+  - `main`
   - `timeline`
   - `analytics`
   - `events`
@@ -165,9 +173,19 @@ Capture a screenshot of the local timeline dashboard. This tool handles build, t
 
 自然语言识别建议：
 
+- “截主视图” / “截整页” -> `main`
 - “截时间轴” / “只截 timeline” -> `timeline`
 - “截类别明细趋势” / “截分析区” -> `analytics`
 - “截事件” / “只截事件列表” -> `events`
+- “截 2026-04-05 的日视图时间轴” -> `range=day, date=2026-04-05, selector=timeline`
+- “截 2026-04 的月视图分析区” -> `range=month, month=2026-04, selector=analytics`
+- “截工作 > 编码的分析区” -> `category=工作, detail=编码, selector=analytics`
+- “截工作 > 编码的事件列表” -> `category=工作, detail=编码, selector=events`
+
+决策约束：
+
+- 只要请求里包含“时间分布”“趋势”“某分类/明细的分布”，优先映射到 `analytics`
+- 只有明确提到“事件列表”“事件卡片”时，才映射到 `events`
 
 ## CLI 和 MCP 的统一约束
 
