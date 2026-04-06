@@ -17,7 +17,8 @@ const CATEGORY_THEME_COLORS = {
 };
 
 class TimelineStore {
-  constructor({ taxonomyFilePath, factsFilePath, legacyFilePath = "" }) {
+  constructor({ stateFilePath = "", taxonomyFilePath, factsFilePath, legacyFilePath = "" }) {
+    this.stateFilePath = stateFilePath;
     this.taxonomyFilePath = taxonomyFilePath;
     this.factsFilePath = factsFilePath;
     this.legacyFilePath = legacyFilePath;
@@ -27,15 +28,25 @@ class TimelineStore {
   }
 
   ensureParentDirectory() {
+    if (this.stateFilePath) {
+      fs.mkdirSync(path.dirname(this.stateFilePath), { recursive: true });
+    }
     fs.mkdirSync(path.dirname(this.taxonomyFilePath), { recursive: true });
     fs.mkdirSync(path.dirname(this.factsFilePath), { recursive: true });
   }
 
   load() {
+    const stateSnapshot = this.stateFilePath ? readJsonFile(this.stateFilePath) : null;
+    if (stateSnapshot) {
+      this.state = normalizeTimelineState(stateSnapshot);
+      return;
+    }
+
     const taxonomy = readJsonFile(this.taxonomyFilePath);
     const facts = readJsonFile(this.factsFilePath);
     if (taxonomy || facts) {
       this.state = normalizeSeparatedTimelineState({ taxonomy, facts });
+      this.save();
       return;
     }
 
@@ -50,6 +61,15 @@ class TimelineStore {
   }
 
   save() {
+    if (this.stateFilePath) {
+      writeJsonFileAtomic(this.stateFilePath, {
+        version: this.state.version,
+        timezone: this.state.timezone,
+        taxonomy: this.state.taxonomy,
+        facts: this.state.facts,
+        proposals: this.state.proposals,
+      });
+    }
     writeJsonFileAtomic(this.taxonomyFilePath, {
       version: this.state.version,
       timezone: this.state.timezone,

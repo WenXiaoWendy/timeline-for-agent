@@ -11,6 +11,10 @@ function readConfig() {
     stateDir,
     timelineDir: process.env.TIMELINE_FOR_AGENT_DIR
       || path.join(stateDir, "timeline"),
+    timelineWriteLockDir: process.env.TIMELINE_FOR_AGENT_WRITE_LOCK_DIR
+      || path.join(stateDir, "timeline", "timeline-write.lock"),
+    timelineStateFile: process.env.TIMELINE_FOR_AGENT_STATE_FILE
+      || path.join(stateDir, "timeline", "timeline-state.json"),
     timelineDbFile: process.env.TIMELINE_FOR_AGENT_DB_FILE
       || path.join(stateDir, "timeline", "timeline-db.json"),
     timelineTaxonomyFile: process.env.TIMELINE_FOR_AGENT_TAXONOMY_FILE
