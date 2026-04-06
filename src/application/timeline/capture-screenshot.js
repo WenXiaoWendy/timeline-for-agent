@@ -8,6 +8,12 @@ const { closeTimelineSiteServer } = require("../../infra/timeline/timeline-site-
 const { buildTimelineSite } = require("./build-dashboard");
 const { startTimelineSiteServer } = require("./serve-site");
 
+const SCREENSHOT_SELECTOR_MAP = {
+  timeline: ".screenshot-target-timeline",
+  analytics: ".screenshot-target-analytics",
+  events: ".screenshot-target-events",
+};
+
 async function captureTimelineScreenshot(config, options = {}) {
   const screenshotOptions = resolveTimelineScreenshotOptions(config, options);
   fs.mkdirSync(path.dirname(screenshotOptions.outputFile), { recursive: true });
@@ -67,11 +73,19 @@ async function captureTimelineScreenshot(config, options = {}) {
 function resolveTimelineScreenshotOptions(config, options = {}) {
   return {
     outputFile: resolveOutputFile(config, options.outputFile),
-    selector: String(options.selector || ".page").trim() || ".page",
+    selector: resolveScreenshotSelector(options.selector),
     width: parsePositiveInt(options.width, 1680),
     height: parsePositiveInt(options.height, 1400),
     sidePadding: parseNonNegativeInt(options.sidePadding, 32),
   };
+}
+
+function resolveScreenshotSelector(selector) {
+  const normalized = String(selector || "").trim();
+  if (!normalized) {
+    return ".page";
+  }
+  return SCREENSHOT_SELECTOR_MAP[normalized] || normalized;
 }
 
 function resolveOutputFile(config, outputFile) {
@@ -195,5 +209,6 @@ function buildPageScreenshotStyles(sidePadding) {
 
 module.exports = {
   captureTimelineScreenshot,
+  SCREENSHOT_SELECTOR_MAP,
   resolveTimelineScreenshotOptions,
 };

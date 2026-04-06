@@ -64,8 +64,21 @@
 
 ### 截图
 
-1. `timeline-for-agent screenshot --output /abs/path/file.png`
-2. 如需局部截图，再补 `--selector`
+1. `timeline-for-agent screenshot --output ./timeline-shot.png`
+2. 如需局部截图，优先使用受控 selector，而不是自由拼 CSS
+3. 只有内置区域不满足时，才退回自定义 selector
+
+局部截图受控 selector：
+
+- `timeline`：时间轴区域
+- `analytics`：类别分布、子类明细和趋势三块分析区
+- `events`：事件明细区
+
+推荐语言映射：
+
+- “截时间轴” / “只截 timeline” -> `--selector timeline`
+- “截类别明细趋势” / “截分析区” -> `--selector analytics`
+- “截事件” / “只截事件列表” -> `--selector events`
 
 ## 为什么要这样约束
 

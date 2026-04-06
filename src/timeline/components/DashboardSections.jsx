@@ -124,7 +124,7 @@ function AnalyticsPanels({
 
   return (
     <>
-      <section className="analytics-grid analytics-grid-top">
+      <section className="analytics-grid analytics-grid-top screenshot-target screenshot-target-analytics">
         <div className="panel chart-panel">
           <div className="panel-header">
             <div className="panel-title-group">
@@ -261,7 +261,7 @@ function AnalyticsPanels({
         </div>
       </section>
 
-      <section className="detail-grid detail-grid-events">
+      <section className="detail-grid detail-grid-events screenshot-target screenshot-target-events">
         <div className="panel chart-panel event-panel">
           <div className="panel-header">
             <div className="panel-title-group">

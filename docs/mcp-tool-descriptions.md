@@ -90,7 +90,7 @@ Start the local timeline development server with automatic rebuilds when source 
 - 用户只想要可访问链接，不需要图片
 
 输入建议：
-- `outputFile`
+- `outputFile`，例如 `./timeline-shot.png`
 - `selector`
 - `width`
 - `height`
@@ -101,6 +101,21 @@ description 示例：
 ```text
 Capture a screenshot of the local timeline dashboard. This tool handles build, temporary local serving, page load, and screenshot capture. Use it when the user needs an image output instead of only a live preview URL.
 ```
+
+局部截图约束：
+
+- 优先使用受控 selector，而不是让模型自由生成 CSS
+- 当前内置值建议固定为：
+  - `timeline`
+  - `analytics`
+  - `events`
+- 只有这些值都不满足时，才允许透传自定义 CSS selector
+
+自然语言识别建议：
+
+- “截时间轴” / “只截 timeline” -> `timeline`
+- “截类别明细趋势” / “截分析区” -> `analytics`
+- “截事件” / “只截事件列表” -> `events`
 
 ## CLI 和 MCP 的统一约束
 

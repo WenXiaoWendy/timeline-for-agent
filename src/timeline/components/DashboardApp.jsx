@@ -54,7 +54,7 @@ function DashboardApp() {
           categories={categories}
         />
 
-        <section className="panel">
+        <section className="panel screenshot-target screenshot-target-timeline">
           <div className="toolbar">
             <TabBar
               value={range}
