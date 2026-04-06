@@ -4,7 +4,7 @@
 
 让 agent 在长期对话里自然沉淀用户的生活轨迹，并在需要时生成可筛选、可截图的时间轴报表。
 
-当前先开放 CLI，MCP 能力后续再补。
+当前先开放 CLI，MCP 能力正在开发中。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-8b6f47)](./LICENSE)
 [![Node >=22](https://img.shields.io/badge/Node-22%2B-3C873A)](./package.json)
@@ -20,13 +20,13 @@
 
 </div>
 
-> 重要前提：agent 上下文里必须带有明确对话时间戳，否则写入出来的时间数据会不准。如果你手头还没有满足这个前提的 agent，可以直接使用我的微信生活助手项目：[wechat-codex-life-assistant](https://github.com/WenXiaoWendy/wechat-codex-life-assistant)。
+> 重要前提：agent 上下文里必须带有明确对话时间戳，否则写入的时间数据会不准。如果你手头还没有满足这个前提的 agent，可以直接使用我的微信生活助手项目：[wechat-codex-life-assistant](https://github.com/WenXiaoWendy/wechat-codex-life-assistant)。
 
 它适合这样的场景：
 
-- agent 在和用户持续聊天，信息会不断累积，但生活片段很容易散掉
-- 你希望这些片段被稳定记录成时间轴，而不是埋在长对话里
-- 当用户想看某一天、某一周、某个月，或某个分类、某个明细时，可以立刻生成对应报表或截图
+- agent 在和用户的持续聊天中，会掌握用户的生活作息和身体状况，这些信息会不断累积，但没有一个结构化的出口
+- 用户希望这些片段被稳定记录成生活轨迹时间轴，而不是散落在长对话里
+- 当用户想看某一天、某一周、某个月，或某个分类、某个明细时，可以立刻从 agent 那里获取对应的报表截图
 
 <a id="preview"></a>
 ## Dashboard 预览
@@ -40,6 +40,10 @@
 需要编码类别的分析局部截图时，可描述为“截 2026-04 的月视图分析区，筛到工作 > 编码”：
 
 ![2026-04 月视图中工作 > 编码的分析局部截图](./examples/screenshot-combos/month-2026-04-work-coding-analytics.png)
+
+agent 发送截图给用户的示例：
+
+![agent 给用户发送时间轴截图的示例](./examples/2066a4e88e375ac57f005e10184998c2.jpg)
 
 其他局部截图和排列组合示例可在 `examples/` 查看：
 
