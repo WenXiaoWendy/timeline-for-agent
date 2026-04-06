@@ -16,7 +16,7 @@
 
 主视图示例：
 
-![Timeline Dashboard](./examples/timeline-dashboard-month-view.png)
+![Timeline Dashboard](./examples/timeline-dashboard-main-view.png)
 
 其他局部截图效果可在 `examples/` 查看：
 
