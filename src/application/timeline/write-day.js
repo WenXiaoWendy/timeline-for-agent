@@ -31,8 +31,8 @@ async function writeTimelineDay(config, input) {
   return {
     date,
     mode,
-    eventCount: saved.events.length,
-    status: payload.finalize ? "final" : saved.status,
+    eventCount: Array.isArray(saved?.events) ? saved.events.length : 0,
+    status: payload.finalize ? "final" : (saved?.status || "missing"),
   };
 }
 

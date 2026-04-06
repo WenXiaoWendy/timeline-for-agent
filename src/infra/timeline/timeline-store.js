@@ -107,6 +107,12 @@ class TimelineStore {
 
     const normalizedEvents = normalizeDayEvents(events, this.state.taxonomy);
     validateDayEvents(normalizedDate, normalizedEvents, this.state.timezone);
+    if (!normalizedEvents.length) {
+      delete this.state.facts[normalizedDate];
+      this.save();
+      return null;
+    }
+
     this.state.facts[normalizedDate] = {
       status: status === "final" ? "final" : "draft",
       updatedAt: new Date().toISOString(),
@@ -155,14 +161,22 @@ class TimelineStore {
       mergedEvents.delete(String(eventId || "").trim());
     }
 
+    const nextEvents = [...mergedEvents.values()].sort((left, right) => {
+      const delta = Date.parse(left.startAt) - Date.parse(right.startAt);
+      return delta !== 0 ? delta : left.id.localeCompare(right.id);
+    });
+
+    if (!nextEvents.length) {
+      delete this.state.facts[normalizedDate];
+      this.save();
+      return null;
+    }
+
     this.state.facts[normalizedDate] = {
       status: status === "final" ? "final" : (status === "draft" ? "draft" : currentDay.status || "draft"),
       updatedAt: new Date().toISOString(),
       source: normalizeSource(source) || currentDay.source || null,
-      events: [...mergedEvents.values()].sort((left, right) => {
-        const delta = Date.parse(left.startAt) - Date.parse(right.startAt);
-        return delta !== 0 ? delta : left.id.localeCompare(right.id);
-      }),
+      events: nextEvents,
     };
     this.save();
     return this.state.facts[normalizedDate];
