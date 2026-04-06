@@ -1,11 +1,34 @@
+<div align="center">
+
 # Timeline for Agent
 
-这是一个面向 agent 的时间轴记录工具，用来让 agent 在和用户持续交流的过程中，顺手沉淀用户的生活轨迹，并在用户需要时临时启动本地服务，通过 Playwright 把指定时间段、分类或明细的数据报表截图发回客户端。
+让 agent 在长期对话里自然沉淀用户的生活轨迹，并在需要时生成可筛选、可截图的时间轴报表。
 
 当前先开放 CLI，MCP 能力后续再补。
 
-重要前提：agent 上下文里必须带有明确对话时间戳，否则写入出来的时间数据会不准。如果你手头还没有满足这个前提的 agent，可以直接使用我的微信生活助手项目：[wechat-codex-life-assistant](https://github.com/WenXiaoWendy/wechat-codex-life-assistant)。
+[![License: MIT](https://img.shields.io/badge/License-MIT-8b6f47)](./LICENSE)
+[![Node >=22](https://img.shields.io/badge/Node-22%2B-3C873A)](./package.json)
+[![CLI Only](https://img.shields.io/badge/Interface-CLI-f4a261)](#agent-guide)
+[![Playwright Screenshot](https://img.shields.io/badge/Screenshot-Playwright-6c8ae4)](#screenshots)
 
+<p>
+  <a href="#preview">预览</a> ·
+  <a href="#user-guide">用户使用</a> ·
+  <a href="#agent-guide">Agent 接入</a> ·
+  <a href="#screenshots">截图规则</a>
+</p>
+
+</div>
+
+> 重要前提：agent 上下文里必须带有明确对话时间戳，否则写入出来的时间数据会不准。如果你手头还没有满足这个前提的 agent，可以直接使用我的微信生活助手项目：[wechat-codex-life-assistant](https://github.com/WenXiaoWendy/wechat-codex-life-assistant)。
+
+它适合这样的场景：
+
+- agent 在和用户持续聊天，信息会不断累积，但生活片段很容易散掉
+- 你希望这些片段被稳定记录成时间轴，而不是埋在长对话里
+- 当用户想看某一天、某一周、某个月，或某个分类、某个明细时，可以立刻生成对应报表或截图
+
+<a id="preview"></a>
 ## Dashboard 预览
 
 主视图示例：
@@ -30,30 +53,13 @@
 - `screenshot-combos/day-2026-04-05-timeline.png`
 - `screenshot-combos/month-2026-04-analytics.png`
 
-## 给用户看
+<a id="user-guide"></a>
+## 用户使用
 
-### 安装与启动
+### 最常见的两种用法
 
-环境前提：
-
-- Node.js `>=22`
-- 已执行 `npm install`
-- 如果需要截图，本机需要可用的 Chromium / Chrome / Edge，或可被 `playwright-core` 发现的浏览器
-
-最快启动方式：
-
-```bash
-npm install
-npm run timeline-dev
-```
-
-默认会启动在 `http://127.0.0.1:4317`。
-
-如果不想走 `npm scripts`，也可以直接用：
-
-```bash
-node ./bin/timeline-for-agent.js dev
-```
+1. 让 agent 在对话中持续写入时间轴，需要时再截图给用户
+2. 自己在本地长期挂一个 dashboard，随时打开查看，不依赖 agent 临时截图
 
 ### 如果想长期开着本地页面随时查看
 
@@ -79,6 +85,29 @@ timeline-for-agent serve --port 4317
 ```
 
 如果你长期只想“查看”而不是“边改边看”，优先用 `serve`。如果你会一边改数据一边观察效果，优先用 `dev`。
+
+### 安装与启动
+
+环境前提：
+
+- Node.js `>=22`
+- 已执行 `npm install`
+- 如果需要截图，本机需要可用的 Chromium / Chrome / Edge，或可被 `playwright-core` 发现的浏览器
+
+最快启动方式：
+
+```bash
+npm install
+npm run timeline-dev
+```
+
+默认会启动在 `http://127.0.0.1:4317`。
+
+如果不想走 `npm scripts`，也可以直接用：
+
+```bash
+node ./bin/timeline-for-agent.js dev
+```
 
 ### 数据放在哪里
 
@@ -167,7 +196,8 @@ CLI 会优先读取这两个 `.env` 位置：
 - “截工作 > 编码的分析区”
 - “截工作 > 编码的事件列表”
 
-## 给 Agent 看
+<a id="agent-guide"></a>
+## Agent 接入
 
 ### 命令入口
 
@@ -214,6 +244,7 @@ node ./bin/timeline-for-agent.js <命令>
   一段是当天凌晨的睡眠，一段是当天夜间入睡后的睡眠
 - 不要写一条从当天晚上直接跨到第二天早上的事件
 
+<a id="screenshots"></a>
 ### 截图规则
 
 - `screenshot` 会先执行一次 `build`，再临时起服务后截图
