@@ -12,6 +12,18 @@
 - agent 上下文里有明确时间戳
 - agent 能执行命令、读写文件
 
+## Dashboard 预览
+
+主视图示例：
+
+![Timeline Dashboard](./examples/timeline-dashboard-month-view.png)
+
+其他局部截图效果可在 `examples/` 查看：
+
+- `timeline-dashboard-timeline-view.png`
+- `timeline-dashboard-analytics-view.png`
+- `timeline-dashboard-events-view.png`
+
 ## CLI
 
 ```bash
@@ -21,6 +33,7 @@ timeline-for-agent write --date 2026-04-06 --stdin
 timeline-for-agent build
 timeline-for-agent serve
 timeline-for-agent dev
+timeline-for-agent screenshot --help
 timeline-for-agent screenshot
 ```
 
@@ -37,3 +50,28 @@ timeline-for-agent screenshot
 - 只有在命令报错、用户要求改实现、或需要新增能力时，才进入读源码路径
 - 推荐的共享约束写法见 [agent-instructions.md](./docs/agent-instructions.md)
 - 未来封装 MCP 时，tool description 模板见 [mcp-tool-descriptions.md](./docs/mcp-tool-descriptions.md)
+
+## 局部截图
+
+- `timeline-for-agent screenshot` 默认截整页
+- 如果只截局部，优先使用受控 selector，而不是临时编 CSS
+- 当前支持三个内置值：
+  - `timeline`：时间轴区域
+  - `analytics`：类别分布、子类明细和趋势三块分析区
+  - `events`：事件明细区
+
+示例：
+
+```bash
+timeline-for-agent screenshot --selector timeline
+timeline-for-agent screenshot --selector analytics
+timeline-for-agent screenshot --selector events
+```
+
+推荐的自然语言描述：
+
+- “截时间轴” / “只截 timeline”
+- “截类别明细趋势” / “截分析区”
+- “截事件” / “只截事件列表”
+
+只有在这三类都不满足时，才传自定义 CSS selector。
