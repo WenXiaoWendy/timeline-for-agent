@@ -71,7 +71,7 @@ async function captureTimelineScreenshot(config, options = {}) {
     });
     await waitForDashboardShell(page);
     await applyScreenshotControls(page, screenshotOptions);
-    await waitForDashboardReady(page);
+    await waitForDashboardReady(page, screenshotOptions.selector);
     await page.locator(screenshotOptions.selector).screenshot({
       path: screenshotOptions.outputFile,
       type: "png",
@@ -295,8 +295,26 @@ function dedupePaths(paths) {
   return output;
 }
 
-async function waitForDashboardReady(page) {
+async function waitForDashboardReady(page, selector = ".page") {
   await waitForDashboardShell(page);
+  await waitForTargetVisible(page, selector);
+  const targetKind = resolveScreenshotTargetKind(selector);
+  if (targetKind === "timeline") {
+    await waitForTimelineSection(page);
+    await page.waitForTimeout(1500);
+    return;
+  }
+  if (targetKind === "events") {
+    await waitForEventsSection(page);
+    await page.waitForTimeout(1500);
+    return;
+  }
+  if (targetKind === "analytics") {
+    await waitForAnalyticsSection(page);
+    await page.waitForTimeout(1500);
+    return;
+  }
+
   const hasTimeline = await page.locator(".timeline-canvas .vis-timeline").isVisible().catch(() => false);
   if (!hasTimeline) {
     await page.waitForFunction(() => {
@@ -308,53 +326,94 @@ async function waitForDashboardReady(page) {
     return;
   }
 
+  await waitForTimelineSection(page);
+  await page.waitForTimeout(2000);
+}
+
+function resolveScreenshotTargetKind(selector) {
+  const normalized = String(selector || "").trim();
+  if (normalized.includes("screenshot-target-timeline")) {
+    return "timeline";
+  }
+  if (normalized.includes("screenshot-target-events")) {
+    return "events";
+  }
+  if (normalized.includes("screenshot-target-analytics")) {
+    return "analytics";
+  }
+  return "page";
+}
+
+async function waitForTargetVisible(page, selector) {
+  await page.locator(selector).first().waitFor({ state: "visible", timeout: 15_000 });
+}
+
+async function waitForTimelineSection(page) {
   await page.waitForFunction(() => {
-    const timeline = document.querySelector(".timeline-canvas .vis-timeline");
-    if (!(timeline instanceof HTMLElement)) {
+    const timelineRoot = document.querySelector(".screenshot-target-timeline");
+    if (!(timelineRoot instanceof HTMLElement)) {
       return false;
     }
-    const chartSvgs = Array.from(document.querySelectorAll(".recharts-responsive-container svg"));
-    if (chartSvgs.length < 3) {
+    const timeline = timelineRoot.querySelector(".timeline-canvas .vis-timeline");
+    if (timeline instanceof HTMLElement) {
+      const rect = timeline.getBoundingClientRect();
+      return rect.width > 40 && rect.height > 40;
+    }
+    const emptyState = timelineRoot.querySelector(".empty-state");
+    if (emptyState instanceof HTMLElement) {
+      const rect = emptyState.getBoundingClientRect();
+      return rect.width > 40 && rect.height > 40;
+    }
+    return false;
+  }, { timeout: 15_000 });
+}
+
+async function waitForEventsSection(page) {
+  await page.waitForFunction(() => {
+    const eventsRoot = document.querySelector(".screenshot-target-events");
+    if (!(eventsRoot instanceof HTMLElement)) {
       return false;
     }
-    return chartSvgs.every((svg) => {
+    const cards = eventsRoot.querySelectorAll(".event-card");
+    if (cards.length > 0) {
+      return true;
+    }
+    const emptyState = eventsRoot.querySelector(".empty-state");
+    if (emptyState instanceof HTMLElement) {
+      const rect = emptyState.getBoundingClientRect();
+      return rect.width > 40 && rect.height > 40;
+    }
+    return false;
+  }, { timeout: 15_000 });
+}
+
+async function waitForAnalyticsSection(page) {
+  await page.waitForFunction(() => {
+    const root = document.querySelector(".screenshot-target-analytics");
+    if (!(root instanceof HTMLElement)) {
+      return false;
+    }
+    const panels = Array.from(root.querySelectorAll(".panel"));
+    if (panels.length < 3) {
+      return false;
+    }
+    return panels.every((panel) => {
+      if (!(panel instanceof HTMLElement)) {
+        return false;
+      }
+      const emptyState = panel.querySelector(".empty-state");
+      if (emptyState instanceof HTMLElement) {
+        const rect = emptyState.getBoundingClientRect();
+        return rect.width > 40 && rect.height > 20;
+      }
+      const svg = panel.querySelector(".recharts-responsive-container svg");
+      if (!(svg instanceof SVGElement)) {
+        return false;
+      }
       const rect = svg.getBoundingClientRect();
       return rect.width > 40 && rect.height > 40;
     });
   }, { timeout: 15_000 });
-  await page.waitForFunction(() => {
-    const pieSectors = Array.from(document.querySelectorAll(".recharts-pie .recharts-sector"));
-    if (pieSectors.length < 2) {
-      return false;
-    }
-    return pieSectors.every((sector) => {
-      const rect = sector.getBoundingClientRect();
-      return rect.width > 8 && rect.height > 8;
-    });
-  }, { timeout: 15_000 });
-  await page.waitForFunction(() => {
-    const pieLabels = Array.from(document.querySelectorAll(".pie-chart-shell svg text"));
-    if (pieLabels.length < 4) {
-      return false;
-    }
-    return pieLabels.every((label) => {
-      const text = String(label.textContent || "").trim();
-      const rect = label.getBoundingClientRect();
-      return text.length > 0 && rect.width > 8 && rect.height > 8;
-    });
-  }, { timeout: 15_000 });
-  await page.waitForFunction(() => {
-    const trendLabels = Array.from(document.querySelectorAll(".trend-chart-shell .recharts-label-list text"));
-    if (!trendLabels.length) {
-      return false;
-    }
-    return trendLabels.every((label) => {
-      const text = String(label.textContent || "").trim();
-      const rect = label.getBoundingClientRect();
-      return text.length > 0 && rect.width > 6 && rect.height > 6;
-    });
-  }, { timeout: 15_000 });
-  await page.waitForTimeout(9000);
 }
 
 async function waitForDashboardShell(page) {

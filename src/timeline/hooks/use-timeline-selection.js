@@ -27,6 +27,11 @@ function useTimelineSelection({
   const categories = currentAggregate?.categories || [];
 
   useEffect(() => {
+    setSelectedCategoryId("");
+    setSelectedSubcategoryId("");
+  }, [range, currentKey]);
+
+  useEffect(() => {
     if (!categories.length) {
       setSelectedCategoryId("");
       return;
