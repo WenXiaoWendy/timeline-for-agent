@@ -125,7 +125,7 @@ class TimelineStore {
       sourceMessageIds: collectSourceMessageIds(events),
     });
 
-    const normalizedEvents = normalizeDayEvents(events, this.state.taxonomy);
+    const normalizedEvents = normalizeDayEvents(events, this.state.taxonomy, { strict: true });
     validateDayEvents(normalizedDate, normalizedEvents, this.state.timezone);
     if (!normalizedEvents.length) {
       delete this.state.facts[normalizedDate];
@@ -171,7 +171,7 @@ class TimelineStore {
       mergedEvents.set(currentEvent.id, currentEvent);
     }
 
-    const normalizedIncomingEvents = normalizeDayEvents(events, this.state.taxonomy);
+    const normalizedIncomingEvents = normalizeDayEvents(events, this.state.taxonomy, { strict: true });
     validateDayEvents(normalizedDate, normalizedIncomingEvents, this.state.timezone);
     for (const event of normalizedIncomingEvents) {
       mergedEvents.set(event.id, event);
@@ -340,50 +340,67 @@ function normalizeProposal(proposal) {
   };
 }
 
-function normalizeDayEvents(events, taxonomy) {
+function normalizeDayEvents(events, taxonomy, options = {}) {
   const categoryMap = buildCategoryMap(taxonomy);
   const nodeMap = buildEventNodeMap(taxonomy);
-  return Array.isArray(events)
-    ? events.map((event, index) => normalizeEvent(event, index, categoryMap, nodeMap)).filter(Boolean)
-    : [];
+  const strict = !!options.strict;
+  if (!Array.isArray(events)) {
+    return [];
+  }
+  return events.flatMap((event, index) => {
+    const result = normalizeEvent(event, index, categoryMap, nodeMap);
+    if (result.value) {
+      return [result.value];
+    }
+    if (strict) {
+      throw new Error(`timeline 事件无效，第 ${index + 1} 条：${result.error}`);
+    }
+    return [];
+  });
 }
 
 function normalizeEvent(event, index, categoryMap, nodeMap) {
   if (!event || typeof event !== "object") {
-    return null;
+    return { value: null, error: "事件必须是对象" };
   }
   const startAt = normalizeIso(event.startAt);
   const endAt = normalizeIso(event.endAt);
   if (!startAt || !endAt || Date.parse(endAt) <= Date.parse(startAt)) {
-    return null;
+    return { value: null, error: "startAt/endAt 缺失或时间范围无效" };
   }
   const eventNodeId = String(event.eventNodeId || "").trim();
   const eventNode = nodeMap && eventNodeId ? nodeMap.get(eventNodeId) : null;
   const subcategoryId = String(event.subcategoryId || eventNode?.parentId || "").trim();
   const categoryId = String(event.categoryId || deriveCategoryId(subcategoryId, categoryMap) || "").trim();
   if (!subcategoryId || !categoryId) {
-    return null;
+    return {
+      value: null,
+      error: "必须提供 eventNodeId，或至少提供可推导分类的 subcategoryId/categoryId",
+    };
   }
   const title = String(event.title || eventNode?.label || "").trim();
   if (!title) {
-    return null;
+    return { value: null, error: "title 缺失，且 eventNodeId 也无法回填标题" };
   }
   return {
-    id: normalizeEventId(event, index, title, eventNodeId, startAt),
-    startAt,
-    endAt,
-    title,
-    note: String(event.note || event.remark || "").trim(),
-    categoryId,
-    subcategoryId,
-    eventNodeId,
-    tags: Array.isArray(event.tags)
-      ? event.tags.map((tag) => String(tag || "").trim()).filter(Boolean)
-      : [],
-    confidence: normalizeConfidence(event.confidence),
-    sourceMessageIds: Array.isArray(event.sourceMessageIds)
-      ? event.sourceMessageIds.map((value) => String(value || "").trim()).filter(Boolean)
-      : [],
+    value: {
+      id: normalizeEventId(event, index, title, eventNodeId, startAt),
+      startAt,
+      endAt,
+      title,
+      note: String(event.note || event.remark || "").trim(),
+      categoryId,
+      subcategoryId,
+      eventNodeId,
+      tags: Array.isArray(event.tags)
+        ? event.tags.map((tag) => String(tag || "").trim()).filter(Boolean)
+        : [],
+      confidence: normalizeConfidence(event.confidence),
+      sourceMessageIds: Array.isArray(event.sourceMessageIds)
+        ? event.sourceMessageIds.map((value) => String(value || "").trim()).filter(Boolean)
+        : [],
+    },
+    error: "",
   };
 }
 

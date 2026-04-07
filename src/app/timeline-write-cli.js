@@ -115,6 +115,18 @@ function printHelp() {
   - title: 短标题，直接显示在时间轴块里
   - note: 详细备注，写背景、上下文和补充描述
 
+事件必填:
+  - 必须提供 startAt 和 endAt
+  - 必须提供以下两种之一：
+    1. eventNodeId
+    2. subcategoryId（此时 categoryId 也建议一起提供）
+  - 如果没传 eventNodeId，且 subcategoryId 也无法推导出 categoryId，写入会直接报错
+  - title 建议始终显式提供；如果缺 title，只有 eventNodeId 能回填标题时才允许写入
+
+写入建议:
+  - 新增事件前，如果不确定分类或 eventNode，先执行 timeline-for-agent categories
+  - 修改已有事件前，先执行 timeline-for-agent read --date YYYY-MM-DD
+
 时间约束:
   - 所有事件必须落在当前 date 这一天内，不能跨天
   - 睡眠如果跨过 00:00，必须拆成两段：
