@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Local timeline dashboard and screenshot toolkit for AI agents.",
   "private": true,
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "type": "commonjs",
   "main": "src/index.js",
   "bin": {

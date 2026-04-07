@@ -6,7 +6,7 @@
 
 当前先开放 CLI，MCP 能力正在开发中。
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-8b6f47)](./LICENSE)
+[![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-b31b1b)](./LICENSE)
 [![Node >=22](https://img.shields.io/badge/Node-22%2B-3C873A)](./package.json)
 [![CLI Only](https://img.shields.io/badge/Interface-CLI-f4a261)](#agent-guide)
 [![Playwright Screenshot](https://img.shields.io/badge/Screenshot-Playwright-6c8ae4)](#screenshots)
@@ -20,7 +20,7 @@
 
 </div>
 
-> 重要前提：agent 上下文里必须带有明确对话时间戳，否则写入的时间数据会不准。如果你手头还没有满足这个前提的 agent，可以直接使用我的微信生活助手项目：[wechat-codex-life-assistant](https://github.com/WenXiaoWendy/wechat-codex-life-assistant)。
+> 重要前提：agent 上下文里必须带有明确对话时间戳，否则写入的时间数据会不准。如果你手头还没有满足这个前提的 agent，可以直接使用我的赛博老板项目：[cyberboss](https://github.com/WenXiaoWendy/cyberboss)。
 
 它适合这样的场景：
 
@@ -279,3 +279,11 @@ timeline-for-agent screenshot --range week --category 工作 --detail 编码 --s
 
 - 共享 agent 约束见 [agent-instructions.md](./docs/agent-instructions.md)
 - 未来 MCP 的 tool description 模板见 [mcp-tool-descriptions.md](./docs/mcp-tool-descriptions.md)
+
+## License
+
+本项目主要面向个人本地部署场景设计。由于时间轴数据往往包含高度私密的生活信息、作息信息和长期行为轨迹，我不希望它被闭源包装成 SaaS 后再反向剥夺用户对数据和代码的知情权。
+
+因此，本项目采用 `AGPL-3.0-only` 协议发布。任何基于本项目进行修改、扩展并通过网络向用户提供服务的行为，都必须按照 AGPL 的要求向对应用户提供完整的对应源代码。
+
+商业使用并非天然被禁止，但前提是必须完整遵守 AGPL。对于任何形式的闭源封装、闭源云端化或只提供服务不提供源代码的做法，本项目都明确不欢迎。
