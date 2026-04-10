@@ -4,12 +4,14 @@ const path = require("path");
 const { TimelineStore } = require("../../infra/timeline/timeline-store");
 
 function createTimelineStore(config) {
-  return new TimelineStore({
+  const store = new TimelineStore({
     stateFilePath: config.timelineStateFile,
     taxonomyFilePath: config.timelineTaxonomyFile,
     factsFilePath: config.timelineFactsFile,
     legacyFilePath: config.timelineDbFile,
   });
+  store.locale = config.timelineLocale || "en";
+  return store;
 }
 
 function getTimelineDashboardBuildOptions(config) {
@@ -23,6 +25,7 @@ function getTimelineDashboardBuildOptions(config) {
 function createTimelineDashboardBuildInput(config) {
   return {
     store: createTimelineStore(config),
+    locale: config.timelineLocale || "en",
     ...getTimelineDashboardBuildOptions(config),
   };
 }
@@ -51,7 +54,7 @@ async function withTimelineWriteLock(config, action, options = {}) {
         throw error;
       }
       if (Date.now() - startedAt >= timeoutMs) {
-        throw new Error("timeline-write 正在被其他进程占用，请稍后重试");
+        throw new Error("timeline-write is currently locked by another process. Try again in a moment.");
       }
       await sleep(retryDelayMs);
     }

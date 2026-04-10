@@ -21,47 +21,49 @@ import {
   formatPercent,
   formatRangeSelection,
 } from "../lib/dashboard-helpers.js";
+import { getTimelineText } from "../../infra/i18n/timeline-locale.js";
 
 function HeaderStats({
   currentAggregate,
   currentKey,
   currentTimelineItemCount,
   data,
+  locale,
   range,
   categories,
 }) {
   const headlineStats = [
     {
-      label: "最近更新",
-      value: formatDateTime(data?.meta?.updatedAt || data?.meta?.generatedAt),
+      label: getTimelineText(locale, "lastUpdated"),
+      value: formatDateTime(data?.meta?.updatedAt || data?.meta?.generatedAt, locale),
     },
     {
-      label: "覆盖天数",
-      value: `${data?.meta?.availableDates?.length || 0} 天`,
+      label: getTimelineText(locale, "daysCovered"),
+      value: `${data?.meta?.availableDates?.length || 0} ${getTimelineText(locale, "daysSuffix")}`,
     },
     {
-      label: "当前范围",
-      value: currentAggregate?.label || formatRangeSelection(range, currentKey) || "未选择",
+      label: getTimelineText(locale, "currentRange"),
+      value: currentAggregate?.label || formatRangeSelection(range, currentKey, locale) || getTimelineText(locale, "notSelected"),
     },
     {
-      label: "总时长",
-      value: currentAggregate ? formatMinutes(currentAggregate.totalMinutes) : "暂无数据",
+      label: getTimelineText(locale, "totalTime"),
+      value: currentAggregate ? formatMinutes(currentAggregate.totalMinutes, locale) : getTimelineText(locale, "noData"),
     },
     {
-      label: "时间块",
-      value: currentTimelineItemCount ? `${currentTimelineItemCount} 条` : "暂无数据",
+      label: getTimelineText(locale, "timeBlocks"),
+      value: currentTimelineItemCount ? `${currentTimelineItemCount} ${getTimelineText(locale, "blocksSuffix")}` : getTimelineText(locale, "noData"),
     },
     {
-      label: "分类数",
-      value: categories.length ? `${categories.length} 类` : "暂无数据",
+      label: getTimelineText(locale, "categories"),
+      value: categories.length ? `${categories.length}` : getTimelineText(locale, "noData"),
     },
   ];
 
   return (
     <section className="hero-card">
       <div className="hero-copy">
-        <span className="hero-title-cn">生活轨迹</span>
-        <span className="hero-title-cn">Life Tracking</span>
+        <span className="hero-title-cn">{getTimelineText(locale, "personalTimeline")}</span>
+        <span className="hero-title-cn">{getTimelineText(locale, "lifeTracking")}</span>
         <div className="hero-title-stack">
           <h1>Timeline</h1>
           {data?.meta?.isDemoData ? (
@@ -89,6 +91,7 @@ function AnalyticsPanels({
   chartGridStroke,
   currentAggregate,
   currentRangeLabel,
+  locale,
   selectedCategoryId,
   selectedSubcategoryId,
   styledSubcategories,
@@ -129,7 +132,7 @@ function AnalyticsPanels({
         <div className="panel chart-panel">
           <div className="panel-header">
             <div className="panel-title-group">
-              <h2>分布</h2>
+              <h2>{getTimelineText(locale, "distribution")}</h2>
             </div>
             <span>{currentRangeLabel}</span>
           </div>
@@ -160,6 +163,7 @@ function AnalyticsPanels({
                 </ResponsiveContainer>
               </div>
               <PieLegend
+                locale={locale}
                 items={categories.map((category) => ({
                   id: category.categoryId,
                   kind: "category",
@@ -173,21 +177,21 @@ function AnalyticsPanels({
               />
             </div>
           ) : (
-            <div className="empty-state small">当前范围还没有统计数据。</div>
+            <div className="empty-state small">{getTimelineText(locale, "noDistribution")}</div>
           )}
         </div>
 
         <div className="panel list-panel">
           <div className="panel-header">
             <div className="panel-title-group">
-              <h2>明细</h2>
+              <h2>{getTimelineText(locale, "breakdown")}</h2>
               {categoryDetail ? (
                 <span className="panel-context-pill" style={{ "--context-color": categoryDetail.color }}>
                   {categoryDetail.label}
                 </span>
               ) : null}
             </div>
-            <span>{categoryDetail ? "点击子类查看趋势和事件" : "先选一个类别"}</span>
+            <span>{categoryDetail ? getTimelineText(locale, "chooseSubcategory") : getTimelineText(locale, "selectCategoryFirst")}</span>
           </div>
           {styledSubcategories.length ? (
             <div className="pie-with-legend">
@@ -216,6 +220,7 @@ function AnalyticsPanels({
                 </ResponsiveContainer>
               </div>
               <PieLegend
+                locale={locale}
                 items={styledSubcategories.map((subcategory) => ({
                   id: subcategory.subcategoryId,
                   kind: "subcategory",
@@ -229,21 +234,21 @@ function AnalyticsPanels({
               />
             </div>
           ) : (
-            <div className="empty-state small">这个类别下还没有子类明细。</div>
+            <div className="empty-state small">{getTimelineText(locale, "noBreakdown")}</div>
           )}
         </div>
 
         <div className="panel chart-panel">
           <div className="panel-header">
             <div className="panel-title-group">
-              <h2>趋势</h2>
+              <h2>{getTimelineText(locale, "trend")}</h2>
               {activeDetail ? (
                 <span className="panel-context-pill" style={{ "--context-color": activeDetail.color }}>
                   {activeDetail.label}
                 </span>
               ) : null}
             </div>
-            <span>{activeDetail ? "按时间范围分布" : "先选一个类别或子类"}</span>
+            <span>{activeDetail ? getTimelineText(locale, "distributionAcrossRange") : getTimelineText(locale, "selectCategoryOrSubcategoryFirst")}</span>
           </div>
           {activeDetail ? (
             <div className="trend-chart-shell">
@@ -259,7 +264,7 @@ function AnalyticsPanels({
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="empty-state small">先从上面的类别里选一个。</div>
+            <div className="empty-state small">{getTimelineText(locale, "startWithCategory")}</div>
           )}
         </div>
       </section>
@@ -268,7 +273,7 @@ function AnalyticsPanels({
         <div className="panel chart-panel event-panel">
           <div className="panel-header">
             <div className="panel-title-group">
-              <h2>事件</h2>
+              <h2>{getTimelineText(locale, "events")}</h2>
               {activeDetail ? (
                 <span className="panel-context-pill" style={{ "--context-color": activeDetail.color }}>
                   {activeDetail.label}
@@ -280,7 +285,7 @@ function AnalyticsPanels({
           {activeDetail?.events?.length ? (
             <EventBlockGrid events={activeDetail.events} color={activeDetail.color} />
           ) : (
-            <div className="empty-state small">当前层级下还没有事件明细。</div>
+            <div className="empty-state small">{getTimelineText(locale, "noEventDetails")}</div>
           )}
         </div>
       </section>
@@ -288,7 +293,7 @@ function AnalyticsPanels({
   );
 }
 
-function PieLegend({ items }) {
+function PieLegend({ items, locale }) {
   return (
     <div className="pie-legend">
       {items.map((item) => (
@@ -303,7 +308,7 @@ function PieLegend({ items }) {
         >
           <span className="dot" style={{ backgroundColor: item.color }} />
           <span className="pie-legend-label">{item.label}</span>
-          <span className="pie-legend-metrics">{formatMinutes(item.minutes)} · {formatPercent(item.percent)}</span>
+          <span className="pie-legend-metrics">{formatMinutes(item.minutes, locale)} · {formatPercent(item.percent)}</span>
         </button>
       ))}
     </div>

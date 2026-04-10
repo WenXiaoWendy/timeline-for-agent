@@ -1,7 +1,13 @@
-function buildTimelineViews(state, metaOverrides = {}) {
+const { getTimelineText, localizeTimelineTaxonomy, resolveTimelineLocale } = require("../i18n/timeline-locale");
+
+let activeLocale = "en";
+
+function buildTimelineViews(state, metaOverrides = {}, options = {}) {
+  activeLocale = resolveTimelineLocale(options.locale || metaOverrides.locale || "en");
   const dates = Object.keys(state.facts || {}).sort();
-  const categoryMap = buildCategoryMap(state.taxonomy);
-  const eventNodeMap = buildEventNodeMap(state.taxonomy);
+  const localizedTaxonomy = localizeTimelineTaxonomy(state.taxonomy, activeLocale);
+  const categoryMap = buildCategoryMap(localizedTaxonomy);
+  const eventNodeMap = buildEventNodeMap(localizedTaxonomy);
   const dayTimelines = {};
   for (const date of dates) {
     dayTimelines[date] = buildDayTimeline(date, state.facts[date], categoryMap, eventNodeMap);
@@ -27,12 +33,13 @@ function buildTimelineViews(state, metaOverrides = {}) {
       factsUpdatedAt: metaOverrides.factsUpdatedAt || "",
       isDemoData: Boolean(metaOverrides.isDemoData),
       timezone: state.timezone || "Asia/Shanghai",
+      locale: activeLocale,
       availableDates: dates,
       latestDate: dates[dates.length - 1] || "",
     },
     taxonomy: {
-      categories: state.taxonomy.categories,
-      eventNodes: state.taxonomy.eventNodes,
+      categories: localizedTaxonomy.categories,
+      eventNodes: localizedTaxonomy.eventNodes,
     },
     timelines: {
       day: dayTimelines,
@@ -372,7 +379,7 @@ function buildWeekRanges(dates) {
     .sort((left, right) => left[0].localeCompare(right[0]))
     .map(([startDate, groupedDates]) => ({
       key: startDate,
-      label: `${startDate} 当周`,
+      label: activeLocale === "zh-CN" ? `${startDate} ${getTimelineText(activeLocale, "weekOf")}` : `${getTimelineText(activeLocale, "weekOf")} ${startDate}`,
       start: `${startDate}T00:00:00.000+08:00`,
       end: `${offsetDate(startDate, 7)}T00:00:00.000+08:00`,
       dates: fillWeekDates(startDate, groupedDates),
@@ -423,7 +430,7 @@ function formatShanghaiDate(timestampMs) {
 }
 
 function formatWeekday(date) {
-  return new Intl.DateTimeFormat("zh-CN", {
+  return new Intl.DateTimeFormat(activeLocale === "zh-CN" ? "zh-CN" : "en-US", {
     timeZone: "Asia/Shanghai",
     weekday: "short",
   }).format(Date.parse(`${date}T00:00:00+08:00`));
@@ -453,11 +460,20 @@ function anchorEventToReferenceDay(startAt, endAt, anchorDate) {
 
 function formatMinutes(minutes) {
   if (minutes < 60) {
-    return `${minutes} 分钟`;
+    return activeLocale === "zh-CN"
+      ? `${minutes}${getTimelineText(activeLocale, "minuteUnit")}`
+      : `${minutes} ${getTimelineText(activeLocale, "minuteUnit")}`;
   }
   const hours = Math.floor(minutes / 60);
   const remaining = minutes % 60;
-  return remaining ? `${hours} 小时 ${remaining} 分钟` : `${hours} 小时`;
+  if (activeLocale === "zh-CN") {
+    return remaining
+      ? `${hours}${getTimelineText(activeLocale, "hourUnit")}${remaining}${getTimelineText(activeLocale, "minuteUnit")}`
+      : `${hours}${getTimelineText(activeLocale, "hourUnit")}`;
+  }
+  return remaining
+    ? `${hours} ${getTimelineText(activeLocale, "hourUnit")} ${remaining} ${getTimelineText(activeLocale, "minuteUnit")}`
+    : `${hours} ${getTimelineText(activeLocale, "hourUnit")}`;
 }
 
 function formatCompactDuration(minutes) {

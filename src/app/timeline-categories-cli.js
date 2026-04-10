@@ -13,15 +13,15 @@ async function runTimelineCategoriesCommand(config) {
 
 function printHelp() {
   console.log(`
-用法: timeline-for-agent categories
+Usage: timeline-for-agent categories
 
-用途:
-  - 读取当前可用的 category / subcategory / eventNode 摘要
-  - 供写入前确认应该复用哪个分类或 eventNode
+Purpose:
+  - Show the available category / subcategory / eventNode summary
+  - Use it before writing if you are not sure which category or event node should be reused
 
-说明:
-  - 这里只返回受控 taxonomy 摘要，不返回整库原始 state
-  - 如果不确定是否需要新增 eventNode，先看 categories
+Notes:
+  - This only returns the controlled taxonomy summary, not the entire raw state
+  - If you are not sure whether a new event node is needed, inspect categories first
 `);
 }
 

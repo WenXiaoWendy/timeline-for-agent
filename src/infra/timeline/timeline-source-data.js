@@ -1,12 +1,15 @@
 const fs = require("fs");
 const path = require("path");
+const { resolveTimelineLocale } = require("../i18n/timeline-locale");
 
 const DEMO_FACTS_PATH = path.join(__dirname, "..", "..", "..", "examples", "demo-facts.json");
+const DEMO_FACTS_ZH_PATH = path.join(__dirname, "..", "..", "..", "examples", "demo-facts.zh-CN.json");
 
-function loadTimelineSourceData({ store }) {
+function loadTimelineSourceData({ store, locale = "en" }) {
   const baseState = store.getState();
   const taxonomyUpdatedAt = readFileUpdatedAt(store.taxonomyFilePath);
   const factsUpdatedAt = readFileUpdatedAt(store.factsFilePath);
+  const resolvedLocale = resolveTimelineLocale(locale);
   const facts = baseState?.facts && typeof baseState.facts === "object" ? baseState.facts : {};
 
   if (Object.keys(facts).length > 0) {
@@ -17,12 +20,14 @@ function loadTimelineSourceData({ store }) {
         factsUpdatedAt,
         taxonomyUpdatedAt,
         isDemoData: false,
+        locale: resolvedLocale,
       },
     };
   }
 
-  const demoFacts = readDemoFacts(DEMO_FACTS_PATH);
-  const demoFactsUpdatedAt = readFileUpdatedAt(DEMO_FACTS_PATH);
+  const demoFactsPath = getTimelineDemoFactsPath(resolvedLocale);
+  const demoFacts = readDemoFacts(demoFactsPath);
+  const demoFactsUpdatedAt = readFileUpdatedAt(demoFactsPath);
   if (!demoFacts || !Object.keys(demoFacts).length) {
     return {
       state: baseState,
@@ -31,6 +36,7 @@ function loadTimelineSourceData({ store }) {
         factsUpdatedAt,
         taxonomyUpdatedAt,
         isDemoData: false,
+        locale: resolvedLocale,
       },
     };
   }
@@ -46,11 +52,16 @@ function loadTimelineSourceData({ store }) {
       factsUpdatedAt: demoFactsUpdatedAt,
       taxonomyUpdatedAt,
       isDemoData: true,
+      locale: resolvedLocale,
     },
   };
 }
 
-function getTimelineDemoFactsPath() {
+function getTimelineDemoFactsPath(locale = "en") {
+  const resolvedLocale = resolveTimelineLocale(locale);
+  if (resolvedLocale === "zh-CN" && fs.existsSync(DEMO_FACTS_ZH_PATH)) {
+    return DEMO_FACTS_ZH_PATH;
+  }
   return DEMO_FACTS_PATH;
 }
 

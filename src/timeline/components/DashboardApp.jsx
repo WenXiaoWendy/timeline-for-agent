@@ -7,6 +7,7 @@ import { TimelinePanel } from "./TimelinePanel.jsx";
 import { useTimelineDashboardData } from "../hooks/use-timeline-dashboard-data.js";
 import { useTimelineSelection } from "../hooks/use-timeline-selection.js";
 import { formatRangeSelection } from "../lib/dashboard-helpers.js";
+import { getTimelineText, resolveTimelineLocale } from "../../infra/i18n/timeline-locale.js";
 
 function DashboardApp() {
   const chartGridStroke = "var(--chart-grid)";
@@ -21,6 +22,7 @@ function DashboardApp() {
     setSelectedWeek,
   } = useTimelineDashboardData();
   const [range, setRange] = useState("week");
+  const locale = resolveTimelineLocale(data?.meta?.locale || "en");
   const {
     activeDetail,
     categories,
@@ -41,7 +43,7 @@ function DashboardApp() {
     selectedMonth,
     selectedWeek,
   });
-  const currentRangeLabel = currentAggregate?.label || formatRangeSelection(range, currentKey) || "未选择";
+  const currentRangeLabel = currentAggregate?.label || formatRangeSelection(range, currentKey, locale) || getTimelineText(locale, "notSelected");
 
   return (
     <div className="page-shell">
@@ -52,6 +54,7 @@ function DashboardApp() {
           currentKey={currentKey}
           currentTimelineItemCount={currentTimelineItemCount}
           data={data}
+          locale={locale}
           range={range}
           categories={categories}
         />
@@ -62,9 +65,9 @@ function DashboardApp() {
               value={range}
               onChange={setRange}
               items={[
-                { id: "day", label: "日" },
-                { id: "week", label: "周" },
-                { id: "month", label: "月" },
+                { id: "day", label: getTimelineText(locale, "day") },
+                { id: "week", label: getTimelineText(locale, "week") },
+                { id: "month", label: getTimelineText(locale, "month") },
               ]}
             />
             <RangeSelector
@@ -76,13 +79,14 @@ function DashboardApp() {
               onWeekChange={setSelectedWeek}
               onMonthChange={setSelectedMonth}
               data={data}
+              locale={locale}
             />
           </div>
 
           {currentTimeline ? (
             <TimelinePanel timeline={currentTimeline} />
           ) : (
-            <div className="empty-state">这个范围没有可渲染的时间轴，先生成当天数据。</div>
+            <div className="empty-state">{getTimelineText(locale, "noTimeline")}</div>
           )}
         </section>
 
@@ -94,6 +98,7 @@ function DashboardApp() {
           chartGridStroke={chartGridStroke}
           currentAggregate={currentAggregate}
           currentRangeLabel={currentRangeLabel}
+          locale={locale}
           selectedCategoryId={selectedCategoryId}
           selectedSubcategoryId={selectedSubcategoryId}
           styledSubcategories={styledSubcategories}
@@ -114,6 +119,7 @@ function RangeSelector({
   onWeekChange,
   onMonthChange,
   data,
+  locale,
 }) {
   if (range === "day") {
     const dates = data?.meta?.availableDates || [];
@@ -122,6 +128,7 @@ function RangeSelector({
         value={selectedDate}
         options={dates.map((date) => ({ value: date, label: date }))}
         onChange={onDateChange}
+        locale={locale}
       />
     );
   }
@@ -132,6 +139,7 @@ function RangeSelector({
         value={selectedWeek}
         options={weeks.map((week) => ({ value: week, label: week }))}
         onChange={onWeekChange}
+        locale={locale}
       />
     );
   }
@@ -141,18 +149,19 @@ function RangeSelector({
       value={selectedMonth}
       options={months.map((month) => ({ value: month, label: month }))}
       onChange={onMonthChange}
+      locale={locale}
     />
   );
 }
 
-function RangeDropdown({ value, options, onChange }) {
+function RangeDropdown({ value, options, onChange, locale }) {
   const selected = options.find((option) => option.value === value) || options[0] || null;
 
   return (
     <Select.Root value={value} onValueChange={onChange}>
       <div className="range-select">
-        <Select.Trigger className="range-select-trigger" aria-label="选择时间范围" data-range-trigger="true">
-          <Select.Value>{selected?.label || "未选择"}</Select.Value>
+        <Select.Trigger className="range-select-trigger" aria-label={getTimelineText(locale, "selectTimeRange")} data-range-trigger="true">
+          <Select.Value>{selected?.label || getTimelineText(locale, "notSelected")}</Select.Value>
           <Select.Icon className="range-select-icon">
             <ChevronDownIcon aria-hidden="true" />
           </Select.Icon>

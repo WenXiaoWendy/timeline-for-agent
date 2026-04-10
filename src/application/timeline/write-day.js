@@ -4,7 +4,7 @@ async function writeTimelineDay(config, input) {
   const payload = input && typeof input === "object" ? input : {};
   const date = String(payload.date || "").trim();
   if (!date) {
-    throw new Error("timeline-write 缺少日期，传 --date YYYY-MM-DD 或在 JSON 里带 date");
+    throw new Error("timeline-write requires a date. Pass --date YYYY-MM-DD or include date in the JSON payload.");
   }
 
   return withTimelineWriteLock(config, async () => {

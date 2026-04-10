@@ -39,18 +39,18 @@ function loadEnv() {
 
 function printHelp() {
   console.log(`
-用法: timeline-for-agent <命令>
+Usage: timeline-for-agent <command>
 
-命令:
-  categories   读取当前可用的分类和 eventNode 摘要
-  proposals    读取新增 eventNode 的 proposals
-  read         读取某天当前已有的时间轴事件 JSON
-  write        写入或增量更新某天的时间轴 JSON
-  build        构建本地时间轴静态页面
-  serve        本地启动时间轴静态页面服务
-  dev          监听源码和数据，自动重建并热刷新时间轴页面
-  screenshot   截图时间轴页面
-  help         显示帮助
+Commands:
+  categories   Show the available category / subcategory / eventNode summary
+  proposals    Show newly proposed event nodes
+  read         Read the controlled timeline event JSON for a given day
+  write        Write or incrementally update the timeline JSON for a given day
+  build        Build the local static dashboard
+  serve        Start the local static dashboard server
+  dev          Watch source and data files, then rebuild and hot reload
+  screenshot   Capture the timeline dashboard
+  help         Show this help
 `);
 }
 
@@ -104,7 +104,7 @@ async function main() {
     return;
   }
 
-  throw new Error(`未知命令: ${command}`);
+  throw new Error(`Unknown command: ${command}`);
 }
 
 module.exports = { main };

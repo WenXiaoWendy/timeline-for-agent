@@ -28,12 +28,12 @@ function parseArgs(args) {
     }
     const value = String(args[index + 1] || "");
     if (!value || value.startsWith("--")) {
-      throw new Error(`参数缺少值: ${arg}`);
+      throw new Error(`Missing value for argument: ${arg}`);
     }
     if (arg === "--date") {
       options.date = value.trim();
     } else {
-      throw new Error(`未知参数: ${arg}`);
+      throw new Error(`Unknown argument: ${arg}`);
     }
     index += 1;
   }
@@ -43,13 +43,13 @@ function parseArgs(args) {
 
 function printHelp() {
   console.log(`
-用法: timeline-for-agent read --date YYYY-MM-DD
+Usage: timeline-for-agent read --date YYYY-MM-DD
 
-用途:
-  - 读取某一天当前已有的时间轴事件
-  - 供 agent 或用户在修改前先查看目标日期，而不是直接读取原始 JSON
+Purpose:
+  - Read the current timeline events for a given day
+  - Let an agent or user inspect the target date before editing instead of reading the raw JSON directly
 
-返回内容:
+Returned fields:
   - date
   - exists
   - status
@@ -57,9 +57,9 @@ function printHelp() {
   - eventCount
   - events
 
-说明:
-  - 这里只返回目标日期的受控数据，不返回完整 facts 或 taxonomy
-  - 修改某天前，推荐先执行 read，再执行 write
+Notes:
+  - This returns controlled day-level data only, not the full facts or taxonomy
+  - Before editing a day, it is recommended to run read first and write after that
 `);
 }
 

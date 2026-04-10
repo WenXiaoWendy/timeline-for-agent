@@ -28,12 +28,12 @@ function parseArgs(args) {
     }
     const value = String(args[index + 1] || "");
     if (!value || value.startsWith("--")) {
-      throw new Error(`参数缺少值: ${arg}`);
+      throw new Error(`Missing value for argument: ${arg}`);
     }
     if (arg === "--date") {
       options.date = value.trim();
     } else {
-      throw new Error(`未知参数: ${arg}`);
+      throw new Error(`Unknown argument: ${arg}`);
     }
     index += 1;
   }
@@ -43,15 +43,15 @@ function parseArgs(args) {
 
 function printHelp() {
   console.log(`
-用法: timeline-for-agent proposals [--date YYYY-MM-DD]
+Usage: timeline-for-agent proposals [--date YYYY-MM-DD]
 
-用途:
-  - 查看写入时顺带新增的 eventNode 提案
-  - 供排查“为什么出现了新节点”或“某天新增了哪些候选节点”
+Purpose:
+  - Show eventNode proposals created during writes
+  - Useful when investigating why a new node appeared or what candidate nodes were introduced on a given day
 
-说明:
-  - 不传 --date 时返回全部 proposals
-  - 传 --date 时只返回对应日期的 proposals
+Notes:
+  - Without --date it returns all proposals
+  - With --date it returns proposals for the selected date only
 `);
 }
 

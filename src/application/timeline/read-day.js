@@ -4,7 +4,7 @@ async function readTimelineDay(config, input) {
   const payload = input && typeof input === "object" ? input : {};
   const date = String(payload.date || "").trim();
   if (!date) {
-    throw new Error("timeline-read 缺少日期，传 --date YYYY-MM-DD");
+    throw new Error("timeline-read requires a date. Pass --date YYYY-MM-DD");
   }
 
   const store = createTimelineStore(config);

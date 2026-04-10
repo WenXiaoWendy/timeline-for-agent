@@ -1,13 +1,15 @@
 const fs = require("fs");
 const path = require("path");
 const esbuild = require("esbuild");
+const { resolveTimelineLocale } = require("../i18n/timeline-locale");
 
 const { buildTimelineViews } = require("./timeline-analytics");
 const { loadTimelineSourceData } = require("./timeline-source-data");
 
-async function buildTimelineDashboard({ store, siteDir, entryFile, cssFile }) {
-  const sourceData = loadTimelineSourceData({ store });
-  const views = buildTimelineViews(sourceData.state, sourceData.meta);
+async function buildTimelineDashboard({ store, siteDir, entryFile, cssFile, locale = "en" }) {
+  const resolvedLocale = resolveTimelineLocale(locale || store?.locale || "en");
+  const sourceData = loadTimelineSourceData({ store, locale: resolvedLocale });
+  const views = buildTimelineViews(sourceData.state, sourceData.meta, { locale: resolvedLocale });
 
   fs.mkdirSync(siteDir, { recursive: true });
   const assetsDir = path.join(siteDir, "assets");
@@ -39,13 +41,14 @@ async function buildTimelineDashboard({ store, siteDir, entryFile, cssFile }) {
     JSON.stringify(views, null, 2),
     "utf8"
   );
-  fs.writeFileSync(path.join(siteDir, "index.html"), buildIndexHtml(), "utf8");
+  fs.writeFileSync(path.join(siteDir, "index.html"), buildIndexHtml(resolvedLocale), "utf8");
 }
 
-function buildIndexHtml() {
+function buildIndexHtml(locale) {
+  const htmlLang = resolveTimelineLocale(locale) === "zh-CN" ? "zh-CN" : "en";
   return [
     "<!doctype html>",
-    "<html lang=\"zh-CN\">",
+    `<html lang="${htmlLang}">`,
     "<head>",
     "  <meta charset=\"utf-8\" />",
     "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />",

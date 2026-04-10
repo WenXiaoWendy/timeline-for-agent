@@ -100,7 +100,7 @@ function resolveTimelineScreenshotOptions(config, options = {}) {
   const detail = resolveSelectionText(options.detail || options.subcategory);
   const explicitSubcategory = resolveSelectionText(options.subcategory);
   if (detail && explicitSubcategory && detail !== explicitSubcategory) {
-    throw new Error("screenshot 的 detail 和 subcategory 不能同时传不同值");
+    throw new Error("screenshot cannot receive conflicting values for detail and subcategory");
   }
 
   return {
@@ -161,28 +161,28 @@ function resolveScreenshotRangeSelection(options = {}) {
   const provided = [date ? "day" : "", week ? "week" : "", month ? "month" : ""].filter(Boolean);
 
   if (provided.length > 1) {
-    throw new Error("screenshot 只能指定一种范围值：date、week、month 三选一");
+    throw new Error("screenshot accepts only one range selector at a time: date, week, or month");
   }
 
   const inferredRange = provided[0] || "";
   const range = explicitRange || inferredRange || "";
   if (range === "day" && week) {
-    throw new Error("range=day 时不能再传 week");
+    throw new Error("range=day cannot be combined with week");
   }
   if (range === "day" && month) {
-    throw new Error("range=day 时不能再传 month");
+    throw new Error("range=day cannot be combined with month");
   }
   if (range === "week" && date) {
-    throw new Error("range=week 时不能再传 date");
+    throw new Error("range=week cannot be combined with date");
   }
   if (range === "week" && month) {
-    throw new Error("range=week 时不能再传 month");
+    throw new Error("range=week cannot be combined with month");
   }
   if (range === "month" && date) {
-    throw new Error("range=month 时不能再传 date");
+    throw new Error("range=month cannot be combined with date");
   }
   if (range === "month" && week) {
-    throw new Error("range=month 时不能再传 week");
+    throw new Error("range=month cannot be combined with week");
   }
 
   return {
@@ -226,7 +226,7 @@ function resolveChromeExecutablePath(config = {}) {
     }
   }
   throw new Error(
-    "找不到可用的 Chromium/Chrome，可设置 TIMELINE_FOR_AGENT_CHROME_PATH 或先安装 Playwright 浏览器"
+    "No Chromium or Chrome executable was found. Set TIMELINE_FOR_AGENT_CHROME_PATH or install a Playwright browser first."
   );
 }
 
@@ -374,9 +374,16 @@ async function waitForEventsSection(page) {
     if (!(eventsRoot instanceof HTMLElement)) {
       return false;
     }
-    const cards = eventsRoot.querySelectorAll(".event-card");
-    if (cards.length > 0) {
+    const blocks = eventsRoot.querySelectorAll(".event-block");
+    if (blocks.length > 0) {
       return true;
+    }
+    const grid = eventsRoot.querySelector(".event-block-grid");
+    if (grid instanceof HTMLElement) {
+      const rect = grid.getBoundingClientRect();
+      if (rect.width > 40 && rect.height > 40) {
+        return true;
+      }
     }
     const emptyState = eventsRoot.querySelector(".empty-state");
     if (emptyState instanceof HTMLElement) {
@@ -466,7 +473,7 @@ async function selectRangeValue(page, requestedValue) {
     labelAttribute: "data-range-option-label",
   });
   if (!match) {
-    throw new Error(`找不到时间范围选项: ${requestedValue}`);
+    throw new Error(`Range option not found: ${requestedValue}`);
   }
   await page.locator(`${optionSelector}[data-range-option-value="${match.id}"]`).first().click();
   await page.waitForFunction((expectedLabel) => {
@@ -482,7 +489,7 @@ async function selectLegendItem(page, kind, requestedValue) {
     labelAttribute: "data-legend-label",
   });
   if (!match) {
-    throw new Error(`找不到${kind === "category" ? "分类" : "明细"}项: ${requestedValue}`);
+    throw new Error(`${kind === "category" ? "Category" : "Detail"} not found: ${requestedValue}`);
   }
   const target = page.locator(`${selector}[data-legend-id="${match.id}"]`).first();
   await target.waitFor({ state: "visible", timeout: 15_000 });
@@ -517,7 +524,7 @@ async function selectSubcategoryItem(page, requestedValue, categoryValue) {
   }
 
   if (!match) {
-    throw new Error(`找不到明细项: ${requestedValue}`);
+    throw new Error(`Detail not found: ${requestedValue}`);
   }
 
   const target = page.locator(`${selector}[data-legend-id="${match.id}"]`).first();

@@ -1,5 +1,6 @@
 const os = require("os");
 const path = require("path");
+const { resolveTimelineLocale } = require("../i18n/timeline-locale");
 
 function readConfig() {
   const mode = process.argv[2] || "";
@@ -25,6 +26,7 @@ function readConfig() {
       || path.join(stateDir, "timeline", "site"),
     timelinePort: readNumberEnv("TIMELINE_FOR_AGENT_PORT", 4317),
     chromeExecutablePath: process.env.TIMELINE_FOR_AGENT_CHROME_PATH || "",
+    timelineLocale: resolveTimelineLocale(process.env.TIMELINE_FOR_AGENT_LOCALE || "en"),
   };
 }
 

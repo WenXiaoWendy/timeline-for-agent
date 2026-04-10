@@ -83,7 +83,7 @@ function parseArgs(args, config) {
       index += 1;
       continue;
     }
-    throw new Error(`未知参数: ${token}`);
+    throw new Error(`Unknown argument: ${token}`);
   }
 
   if (options.help) {
@@ -99,48 +99,48 @@ function parseArgs(args, config) {
 function requireValue(token, value) {
   const normalized = String(value || "").trim();
   if (!normalized || normalized.startsWith("--")) {
-    throw new Error(`参数缺少值: ${token}`);
+    throw new Error(`Missing value for argument: ${token}`);
   }
   return normalized;
 }
 
 function printHelp() {
   console.log(`
-用法: timeline-for-agent screenshot [--output ./timeline-shot.png] [--selector timeline|analytics|events|CSS]
+Usage: timeline-for-agent screenshot [--output ./timeline-shot.png] [--selector timeline|analytics|events|CSS]
 
-截图前视图调整:
-  --range day|week|month|日|周|月
+View controls before the screenshot:
+  --range day|week|month
   --date YYYY-MM-DD
   --week WEEK_KEY
   --month YYYY-MM
-  --category 分类 id 或 label
-  --subcategory 明细 id 或 label
-  --detail 明细 id 或 label（等同于 --subcategory）
+  --category category id or label
+  --subcategory subcategory id or label
+  --detail subcategory id or label (same as --subcategory)
 
-局部截图 selector:
-  - main       主视图整页
-  - timeline   时间轴区域，包含范围切换和时间轴面板
-  - analytics  类别分布、子类明细和趋势三块分析区
-  - events     事件明细区
+Built-in selectors:
+  - main       full dashboard view
+  - timeline   timeline area including range switcher and timeline panel
+  - analytics  distribution, breakdown, and trend panels
+  - events     event detail panel
 
-自然语言映射建议:
-  - “截主视图” / “截整页”                 -> --selector main
-  - “截时间轴” / “只截 timeline”           -> --selector timeline
-  - “截类别明细趋势” / “截分析区”         -> --selector analytics
-  - “截事件” / “只截事件列表”             -> --selector events
-  - “截某天日视图”                         -> --range day --date YYYY-MM-DD
-  - “截某月月视图”                         -> --range month --month YYYY-MM
-  - “截工作 > 编码的分析区”                -> --category 工作 --detail 编码 --selector analytics
-  - “截工作 > 编码的事件列表”              -> --category 工作 --detail 编码 --selector events
+Prompting suggestions:
+  - "capture the main dashboard"             -> --selector main
+  - "capture the timeline area"              -> --selector timeline
+  - "capture the analytics section"          -> --selector analytics
+  - "capture the event list"                 -> --selector events
+  - "capture the day view for YYYY-MM-DD"    -> --range day --date YYYY-MM-DD
+  - "capture the month view for YYYY-MM"     -> --range month --month YYYY-MM
+  - "capture Work > Coding analytics"        -> --category Work --detail Coding --selector analytics
+  - "capture Work > Coding events"           -> --category Work --detail Coding --selector events
 
-选择建议:
-  - 只要用户想看某个分类/明细的时间分布，优先用 --selector analytics
-  - 只有明确要看事件卡片列表时，才用 --selector events
+Selection advice:
+  - if the user wants time distribution for a category or detail, prefer --selector analytics
+  - only use --selector events when the user explicitly wants event cards
 
-也可以直接传自定义 CSS selector，例如:
+You can also pass a custom CSS selector, for example:
   timeline-for-agent screenshot --selector ".pie-chart-shell"
 
-当前内置映射:
+Current selector map:
 ${Object.entries(SCREENSHOT_SELECTOR_MAP)
     .map(([key, value]) => `  - ${key} => ${value}`)
     .join("\n")}

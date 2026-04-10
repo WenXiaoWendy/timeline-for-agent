@@ -15,7 +15,7 @@ async function runTimelineDevServer(config, options = {}) {
     path.join(__dirname, "..", "..", "infra", "timeline"),
     config.timelineTaxonomyFile,
     config.timelineFactsFile,
-    getTimelineDemoFactsPath(),
+    getTimelineDemoFactsPath(config.timelineLocale),
   ];
 
   const state = {
@@ -31,7 +31,7 @@ async function runTimelineDevServer(config, options = {}) {
     const requestPath = normalizeRequestPath(request.url || "/");
     if (requestPath === "__timeline_source_data") {
       const store = createTimelineStore(config);
-      const payload = loadTimelineSourceData({ store });
+      const payload = loadTimelineSourceData({ store, locale: config.timelineLocale });
       response.writeHead(200, {
         "content-type": "application/json; charset=utf-8",
         "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate",
@@ -121,7 +121,7 @@ async function rebuildTimelineDevSite(state, config) {
     for (const client of state.clients) {
       client.write(`data: ${JSON.stringify({ version: state.version })}\n\n`);
     }
-    console.log(`timeline dev rebuilt: ${new Date(state.version).toLocaleTimeString("zh-CN", { hour12: false })}`);
+    console.log(`timeline dev rebuilt: ${new Date(state.version).toLocaleTimeString("en-GB", { hour12: false })}`);
   } finally {
     state.building = false;
     if (state.pending) {

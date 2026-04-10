@@ -353,7 +353,7 @@ function normalizeDayEvents(events, taxonomy, options = {}) {
       return [result.value];
     }
     if (strict) {
-      throw new Error(`timeline 事件无效，第 ${index + 1} 条：${result.error}`);
+      throw new Error(`Invalid timeline event at index ${index + 1}: ${result.error}`);
     }
     return [];
   });
@@ -361,12 +361,12 @@ function normalizeDayEvents(events, taxonomy, options = {}) {
 
 function normalizeEvent(event, index, categoryMap, nodeMap) {
   if (!event || typeof event !== "object") {
-    return { value: null, error: "事件必须是对象" };
+    return { value: null, error: "event must be an object" };
   }
   const startAt = normalizeIso(event.startAt);
   const endAt = normalizeIso(event.endAt);
   if (!startAt || !endAt || Date.parse(endAt) <= Date.parse(startAt)) {
-    return { value: null, error: "startAt/endAt 缺失或时间范围无效" };
+    return { value: null, error: "startAt/endAt is missing or the time range is invalid" };
   }
   const eventNodeId = String(event.eventNodeId || "").trim();
   const eventNode = nodeMap && eventNodeId ? nodeMap.get(eventNodeId) : null;
@@ -375,12 +375,12 @@ function normalizeEvent(event, index, categoryMap, nodeMap) {
   if (!subcategoryId || !categoryId) {
     return {
       value: null,
-      error: "必须提供 eventNodeId，或至少提供可推导分类的 subcategoryId/categoryId",
+      error: "eventNodeId is required unless subcategoryId/categoryId can resolve the category",
     };
   }
   const title = String(event.title || eventNode?.label || "").trim();
   if (!title) {
-    return { value: null, error: "title 缺失，且 eventNodeId 也无法回填标题" };
+    return { value: null, error: "title is missing and eventNodeId cannot backfill it" };
   }
   return {
     value: {
@@ -478,7 +478,7 @@ function validateDayEvents(date, events, timezone) {
     const endDate = formatDateInTimezone(event.endAt, resolvedTimezone);
     if (startDate !== normalizedDate || endDate !== normalizedDate) {
       throw new Error(
-        `timeline 事件不能跨天，必须落在 ${normalizedDate} 当天内: ${event.title} (${event.startAt} ~ ${event.endAt})`
+        `timeline events must stay within ${normalizedDate}: ${event.title} (${event.startAt} ~ ${event.endAt})`
       );
     }
   }
