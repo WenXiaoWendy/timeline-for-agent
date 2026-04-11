@@ -65,21 +65,18 @@ async function runTimelineDevServer(config, options = {}) {
 
   const watchers = watchRoots
     .filter(Boolean)
-    .map((targetPath) => {
-      try {
-        return fs.watch(targetPath, { recursive: fs.statSync(targetPath).isDirectory() }, () => {
-          scheduleTimelineDevRebuild(state, config);
-        });
-      } catch {
-        console.warn(`timeline dev watch skipped: ${targetPath}`);
-        return null;
-      }
-    })
+    .map((targetPath) => createTimelineDevWatcher(targetPath, () => {
+      scheduleTimelineDevRebuild(state, config);
+    }))
     .filter(Boolean);
 
   const cleanup = () => {
+    if (state.timer) {
+      clearTimeout(state.timer);
+      state.timer = null;
+    }
     for (const watcher of watchers) {
-      watcher.close();
+      watcher.close?.();
     }
     for (const client of state.clients) {
       client.end();
@@ -94,6 +91,126 @@ async function runTimelineDevServer(config, options = {}) {
     port: resolvedPort,
     url: `http://127.0.0.1:${resolvedPort}`,
   };
+}
+
+function createTimelineDevWatcher(targetPath, onChange) {
+  const normalizedPath = path.resolve(String(targetPath || ""));
+  if (!normalizedPath) {
+    return null;
+  }
+
+  let stats = null;
+  try {
+    stats = fs.statSync(normalizedPath);
+  } catch {
+    console.warn(`timeline dev watch skipped: ${normalizedPath}`);
+    return null;
+  }
+
+  const startPollingFallback = (reason = "") => {
+    const prefix = reason ? `timeline dev watch fallback (${reason}):` : "timeline dev watch fallback:";
+    console.warn(`${prefix} ${normalizedPath}`);
+    return createPollingWatcher(normalizedPath, onChange);
+  };
+
+  try {
+    const watcher = fs.watch(normalizedPath, { recursive: stats.isDirectory() }, () => {
+      onChange();
+    });
+    watcher.on("error", (error) => {
+      if (!isWatchLimitError(error)) {
+        console.warn(`timeline dev watch error: ${normalizedPath} ${error?.message || String(error)}`);
+        return;
+      }
+      watcher.close();
+      fallbackHandle.close();
+      fallbackHandle = startPollingFallback(error.code || "watch-limit");
+    });
+
+    let fallbackHandle = createNoopWatcher();
+    return {
+      close() {
+        watcher.close();
+        fallbackHandle.close();
+      },
+    };
+  } catch (error) {
+    if (!isWatchLimitError(error)) {
+      console.warn(`timeline dev watch skipped: ${normalizedPath}`);
+      return null;
+    }
+    return startPollingFallback(error.code || "watch-limit");
+  }
+}
+
+function createPollingWatcher(targetPath, onChange) {
+  let lastStamp = readWatchStamp(targetPath);
+  const timer = setInterval(() => {
+    const nextStamp = readWatchStamp(targetPath);
+    if (nextStamp !== lastStamp) {
+      lastStamp = nextStamp;
+      onChange();
+    }
+  }, 800);
+  timer.unref?.();
+  return {
+    close() {
+      clearInterval(timer);
+    },
+  };
+}
+
+function createNoopWatcher() {
+  return {
+    close() {},
+  };
+}
+
+function isWatchLimitError(error) {
+  const code = String(error?.code || "").trim().toUpperCase();
+  return code === "EMFILE" || code === "ENOSPC";
+}
+
+function readWatchStamp(targetPath) {
+  try {
+    const stats = fs.statSync(targetPath);
+    if (!stats.isDirectory()) {
+      return `${stats.mtimeMs}:${stats.size}`;
+    }
+    return String(scanDirectoryMtime(targetPath));
+  } catch {
+    return "missing";
+  }
+}
+
+function scanDirectoryMtime(rootPath) {
+  let latest = 0;
+  const queue = [rootPath];
+  while (queue.length) {
+    const currentPath = queue.pop();
+    let entries = [];
+    try {
+      entries = fs.readdirSync(currentPath, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      const entryPath = path.join(currentPath, entry.name);
+      let stats = null;
+      try {
+        stats = fs.statSync(entryPath);
+      } catch {
+        continue;
+      }
+      if (stats.mtimeMs > latest) {
+        latest = stats.mtimeMs;
+      }
+      if (entry.isDirectory()) {
+        queue.push(entryPath);
+      }
+    }
+  }
+  return latest;
 }
 
 function scheduleTimelineDevRebuild(state, config) {
@@ -208,5 +325,9 @@ function detectMimeType(filePath) {
 }
 
 module.exports = {
+  createPollingWatcher,
+  createTimelineDevWatcher,
+  isWatchLimitError,
+  readWatchStamp,
   runTimelineDevServer,
 };
