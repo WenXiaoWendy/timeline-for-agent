@@ -1,20 +1,53 @@
 const { startTimelineSiteServer } = require("../application/timeline/serve-site");
 
 async function runTimelineServeCommand(config) {
-  const port = parsePort(process.argv.slice(3), config.timelinePort);
-  const { info } = await startTimelineSiteServer(config, { port });
+  const options = parseArgs(process.argv.slice(3), config.timelinePort);
+  if (options.help) {
+    printHelp();
+    return;
+  }
+  const { info } = await startTimelineSiteServer(config, { port: options.port });
   console.log(`timeline dashboard: ${info.url}`);
 }
 
-function parsePort(args, fallback) {
+function parseArgs(args, fallback) {
+  const options = {
+    help: false,
+    port: fallback,
+  };
   for (let index = 0; index < args.length; index += 1) {
-    if (args[index] !== "--port") {
+    const token = String(args[index] || "").trim();
+    if (!token) {
       continue;
     }
+    if (token === "--help" || token === "-h") {
+      options.help = true;
+      continue;
+    }
+    if (token !== "--port") {
+      throw new Error(`Unknown argument: ${token}`);
+    }
     const value = Number.parseInt(String(args[index + 1] || ""), 10);
-    return Number.isFinite(value) && value > 0 ? value : fallback;
+    options.port = Number.isFinite(value) && value > 0 ? value : fallback;
+    index += 1;
   }
-  return fallback;
+  return options;
 }
 
-module.exports = { runTimelineServeCommand };
+function printHelp() {
+  console.log(`
+Usage: timeline-for-agent serve [--port 4317]
+
+Serve the built static dashboard without file watching.
+
+Relevant environment:
+  TIMELINE_FOR_AGENT_LOCALE=en|zh-CN
+  TIMELINE_FOR_AGENT_PORT=4317
+  TIMELINE_FOR_AGENT_SITE_DIR=/absolute/path
+`);
+}
+
+module.exports = {
+  parseArgs,
+  runTimelineServeCommand,
+};
