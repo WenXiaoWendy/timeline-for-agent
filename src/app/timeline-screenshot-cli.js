@@ -91,6 +91,7 @@ function parseArgs(args, config) {
   }
 
   return {
+    ...options,
     ...resolveTimelineScreenshotOptions(config, options),
     help: false,
   };
